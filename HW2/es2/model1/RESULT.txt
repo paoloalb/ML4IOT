@@ -1,0 +1,12 @@
+139645
+Model: DS-CNN
+mfcc: True
+epochs: 20
+lr: 0.0075
+Quantization: W
+Structured_w: 0.7
+Magnitude_fs: 0.9
+Compressed: True
+Final size: 77248
+Compressed final size: 21764
+Testset accuracy: 0.91375

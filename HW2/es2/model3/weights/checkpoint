@@ -1,0 +1,2 @@
+model_checkpoint_path: "model_DS-CNN_mfcc_False_epochs_30_lr_0.01_quantization_W_structured_w_0.4_compressed_True_2020-12-08_18:00:42"
+all_model_checkpoint_paths: "model_DS-CNN_mfcc_False_epochs_30_lr_0.01_quantization_W_structured_w_0.4_compressed_True_2020-12-08_18:00:42"
