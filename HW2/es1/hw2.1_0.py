@@ -34,14 +34,15 @@ args = parser.parse_args()
 ##################################################################################################
 
 #### PAIR MAE CLASS ######################################################################
-class PairMAE(tf.keras.metrics.Metric):
-    metric = None
+class MAEmetric(tf.keras.metrics.Metric):
+    temp_metric = None
 
     # is possible to handle one of the two metrics, by changing the parameter metric
-    def __init__(self, name="PairMAE", **kwargs):
-        super(PairMAE, self).__init__(name=name, **kwargs)
+    def __init__(self, name, metric_type="T", **kwargs):
+        super(MAEmetric, self).__init__(name=name, **kwargs)
         self.total = self.add_weight("total", initializer="zeros", shape=[2])
         self.count = self.add_weight("total", initializer="zeros")
+        self.metric_type = metric_type
 
     def update_state(self, y_true, y_pred, sample_weight=None):
         # update the internal MeanAbsoluteError instance
@@ -52,7 +53,9 @@ class PairMAE(tf.keras.metrics.Metric):
         return
 
     def result(self):
-        return tf.math.divide_no_nan(self.total, self.count)[0]
+        assert(self.metric_type.upper() in ["T", "H"]), "Error. mertic type must be T or H"
+        idx = 0 if self.metric_type.upper() == "T" else 1
+        return tf.math.divide_no_nan(self.total, self.count)[idx]
 
 
     def reset_states(self):
@@ -101,11 +104,13 @@ class WindowGenerator:
             sequence_stride=1,
             batch_size=32)
 
+
         ds = ds.map(self.preprocess)
 
         ds = ds.cache()
         if train is True:
             ds = ds.shuffle(100, reshuffle_each_iteration=True)
+
 
         return ds
 
@@ -214,7 +219,7 @@ print(f"\nModel will be saved in {filepath_base}")
 #### CALLBACKS ###################################################################################
 checkpoint = tf.keras.callbacks.ModelCheckpoint(
     filepath="models/model/best_{val_PairMAE:02f}",
-    monitor='val_PairMAE',
+    monitor='val_TempMAE',
     patience=0,
     verbose=1,
     save_best_only=True,
@@ -222,6 +227,7 @@ checkpoint = tf.keras.callbacks.ModelCheckpoint(
     mode='auto',
     save_freq='epoch',
 )
+
 callbacks = [checkpoint]
 
 # MAGNITUDE BASED PRUNING
@@ -245,7 +251,10 @@ if args.magnitude_fs:
 ##################################################################################################
 
 #### MODEL COMPILING #############################################################################
-metric = [PairMAE()]
+temp_metric = MAEmetric(name="TempMAE", metric_type="T")
+hum_metric = MAEmetric(name="HumMAE", metric_type="H")
+
+metric = [temp_metric, hum_metric]
 
 model.compile(optimizer='adam',
               loss=tf.keras.losses.MSE,
