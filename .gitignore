@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+HW2/es1/models/
+
+HW2/es1/data/

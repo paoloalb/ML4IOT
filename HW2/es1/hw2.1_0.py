@@ -23,10 +23,10 @@ EPOCHS = 20
 #### PARSING INPUT PARAMETERS ####################################################################
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="CNN")
-parser.add_argument("--quantization", type=str, default="W")
-parser.add_argument("--structured_w", type=float)
-parser.add_argument("--magnitude_fs", type=float)
-parser.add_argument("--compressed", action="store_true")
+parser.add_argument("--quantization", type=str, default="W+A")
+parser.add_argument("--structured_w", type=float, default = 2)
+parser.add_argument("--magnitude_fs", type=float, default=0.8)
+parser.add_argument("--compressed", action="store_true", default=True)
 
 args = parser.parse_args()
 
@@ -38,7 +38,7 @@ class MAEmetric(tf.keras.metrics.Metric):
     temp_metric = None
 
     # is possible to handle one of the two metrics, by changing the parameter metric
-    def __init__(self, name, metric_type="T", **kwargs):
+    def __init__(self, name, metric_type="T+H", **kwargs):
         super(MAEmetric, self).__init__(name=name, **kwargs)
         self.total = self.add_weight("total", initializer="zeros", shape=[2])
         self.count = self.add_weight("total", initializer="zeros")
@@ -53,10 +53,17 @@ class MAEmetric(tf.keras.metrics.Metric):
         return
 
     def result(self):
-        assert(self.metric_type.upper() in ["T", "H"]), "Error. mertic type must be T or H"
-        idx = 0 if self.metric_type.upper() == "T" else 1
-        return tf.math.divide_no_nan(self.total, self.count)[idx]
+        assert(self.metric_type.upper() in ["T", "H", "T+H"]), "Error. mertic type must be T or H"
+        switcher = {
+            "T": 0,
+            "H": 1,
+            "T+H": 2}
+        idx = switcher.get(self.metric_type.upper(), "Invalid argument")
 
+        if idx == 2:
+            return (tf.math.divide_no_nan(self.total, self.count)[0] + tf.math.divide_no_nan(self.total, self.count)[1])/2
+        else:
+            return tf.math.divide_no_nan(self.total, self.count)[idx]
 
     def reset_states(self):
         # The state of the metric will be reset at the start of each epoch.
@@ -211,15 +218,15 @@ if args.compressed:
 
 filename += strftime("_%Y-%m-%d_%H:%M:%S", gmtime())
 
-filepath_base = "./models/" + filename
+filepath_base = "models/" + filename
 
 print(f"\nModel will be saved in {filepath_base}")
 ##################################################################################################
 
 #### CALLBACKS ###################################################################################
 checkpoint = tf.keras.callbacks.ModelCheckpoint(
-    filepath="models/model/best_{val_PairMAE:02f}",
-    monitor='val_TempMAE',
+    filepath=filepath_base+'/weights/'+filename, #"models/model/best_{val_TempMAE:02f}",
+    monitor='val_temp_hum_MAE',
     patience=0,
     verbose=1,
     save_best_only=True,
@@ -253,8 +260,9 @@ if args.magnitude_fs:
 #### MODEL COMPILING #############################################################################
 temp_metric = MAEmetric(name="TempMAE", metric_type="T")
 hum_metric = MAEmetric(name="HumMAE", metric_type="H")
+temp_hum_metric = MAEmetric(name="temp_hum_MAE", metric_type="T+H")
 
-metric = [temp_metric, hum_metric]
+metric = [temp_hum_metric, temp_metric, hum_metric]
 
 model.compile(optimizer='adam',
               loss=tf.keras.losses.MSE,
@@ -267,7 +275,9 @@ params = model.count_params()
 #### TRAIN AND EVALUATE MODEL ####################################################################
 model.fit(train_ds, epochs=EPOCHS, verbose=1, validation_data=val_ds, callbacks=callbacks)
 
-model.load_weights("models/model/best_0.565566")
+#model.load_weights("models/model/best_0.565566")
+model.load_weights(filepath_base+'/weights/'+filename)
+
 test_MAE = model.evaluate(test_ds, verbose=1)[-2:]  # 2->labels
 ##################################################################################################
 
