@@ -264,7 +264,9 @@ temp_hum_metric = MAEmetric(name="temp_hum_MAE", metric_type="T+H")
 
 metric = [temp_hum_metric, temp_metric, hum_metric]
 
-model.compile(optimizer='adam',
+optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+
+model.compile(optimizer=optimizer,
               loss=tf.keras.losses.MSE,
               metrics=metric)
 
