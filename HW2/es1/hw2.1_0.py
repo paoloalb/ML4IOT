@@ -24,8 +24,8 @@ EPOCHS = 20
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="CNN")
 parser.add_argument("--quantization", type=str, default="W")
-parser.add_argument("--structured_w", type=float, default=0.5)
-parser.add_argument("--magnitude_fs", type=float, default=0.94)
+parser.add_argument("--structured_w", type=float, default=0.12)
+parser.add_argument("--magnitude_fs", type=float, default=0.745)
 parser.add_argument("--compressed", action="store_true", default=True)
 
 args = parser.parse_args()

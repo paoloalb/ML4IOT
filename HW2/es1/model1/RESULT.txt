@@ -1,0 +1,12 @@
+678
+Model: CNN
+epochs: 20
+lr: 0.001
+Quantization: W
+Structured_w: 0.12
+Magnitude_fs: 0.745
+Compressed: True
+Final size: 5264
+Compressed final size: 1992
+TempMAE: 0.4812881350517273
+HumMAE: 1.7861491441726685

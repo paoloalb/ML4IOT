@@ -1,0 +1,2 @@
+model_checkpoint_path: "model_CNN_quantization_W_structured_w_0.12_magnitude_fs_0.745_compressed_True_2020-12-16_06:43:28"
+all_model_checkpoint_paths: "model_CNN_quantization_W_structured_w_0.12_magnitude_fs_0.745_compressed_True_2020-12-16_06:43:28"
