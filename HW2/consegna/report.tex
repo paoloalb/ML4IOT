@@ -61,8 +61,8 @@ In the following table we can see the results for the two models:
 \hline
 \textbf{Quantization} & \textbf{Final sparsity} & \textbf{$\alpha$} &\textbf{Size} &\textbf{Compr. size} &\textbf{TempMAE}&\textbf{HumMAE} \\
 \hline
-Weights only & 0.745 & 0.12 & 5246 kB & 1992 kB & 0.4812 °C & 1.786 \% \\ 
-Weights only & 0.75  & 0.07 & 4480 kB & 1689 kB & 0.4795 °C & 1.879 \% \\ 
+Weights only & 0.745 & 0.12 & 5246 B & 1992 B & 0.4812 °C & 1.786 \% \\ 
+Weights only & 0.75  & 0.07 & 4480 B & 1689 B & 0.4795 °C & 1.879 \% \\ 
 \hline
 
 \end{tabular}
@@ -77,13 +77,13 @@ Weights only & 0.75  & 0.07 & 4480 kB & 1689 kB & 0.4795 °C & 1.879 \% \\
 For keyword spotting on the mini speech command dataset, we used the DS-CNN model with weights-only quantization, obtaining the models in the table below:
 \\
 \begin{center}
-\begin{tabular}{ |c|c|c|c|c|c|c|c| }
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
 \hline
 \textbf{Quantiz.} &\textbf{F.S.} & \textbf{$\alpha$} &\textbf{Size} &\textbf{Compr.}&  \textbf{Inf. Latency}& \textbf{Tot. Latency} &\textbf{Test acc.}\\
 \hline
-Weights only & 0.7 & 0.9 & 77248 kB & 21764 kB & 9.03ms&   66.71ms & 0.91375 \\ 
-Weights only & - &  0.3  & 26960 kB & 23233 kB  &  1.16ms& 58.72ms & 0.91 \\ 
-Weights only & - &  0.4  & 40320 kB & 34831 kB  & 4.52ms & 21.07ms & 0.9175 \\ 
+Weights only & 0.9 & 0.7 & 77248 B & 21764 B & 9.03ms&   66.71ms & 0.91375 \\ 
+Weights only & - &  0.3  & 26960 B & 23233 B  &  1.16ms& 58.72ms & 0.91 \\ 
+Weights only & - &  0.4  & 40320 B & 34831 B  & 4.52ms & 21.07ms & 0.9175 \\ 
 
 \hline
 \end{tabular}
