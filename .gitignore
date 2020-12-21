@@ -131,3 +131,7 @@ dmypy.json
 HW2/es1/models/
 
 HW2/es1/data/
+
+*.aux
+
+HW2/consegna/report.synctex.gz
