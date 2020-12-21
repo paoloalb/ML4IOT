@@ -3,7 +3,7 @@
 \usepackage[english]{babel}
 \usepackage[document]{ragged2e}
 \usepackage{todonotes}
-\usepackage[a4paper, total={6.2in, 10in}]{geometry}
+\usepackage[a4paper, total={6.2in, 12in}]{geometry}
 \usepackage{subcaption}
 \usepackage{graphicx}
 \usepackage{grffile}
@@ -47,22 +47,25 @@ Student ID: s278176\\
 
 
 \section{Multi-Step Temperature and Humidity Forecasting}
-After implementing a WindowGenerator class returning 6 output steps, we tried to train the models. We settled on a weights-only quantization, and after tweaking the pruning parameters we found two versions of the CNN model that were able to respect the given constraints.
-The parameters used for the 2 models were the final sparsity (\%) at which pruning ends, and the width multiplier $\alpha$.
+After implementing a WindowGenerator class returning 6 output steps, we started to train the models. We settled on a weights-only quantization, and after tweaking the pruning parameters, we found two versions of the CNN model that were able to respect the given constraints.
+The parameters changed in the 2 models were the final sparsity (\%) at which pruning ends, and the width multiplier $\alpha$.
 \\\\
-We adopted a callback function to stop the training when the validation set performances stopped to improve. We adopted the standars Keras checkpoint approach, and we monitored the mean of the two MAE metrics for the checkpoint. 
+We adopted a callback function to stop the training when the validation set performances were not improving anymore. We adopted the standars Keras checkpoint approach, and we monitored the mean of the two MAE metrics for the checkpoint. 
 \\\\
-In the following table we can see the results for the two models:
+In the following table we can see the results for the two models, that were both trained for 20 epochs, with learning rate 0.001:
 
 \vspace{0.2cm}
 
 \begin{center}
-\begin{tabular}{ |c|c|c|c|c|c|c| } 
+\begin{tabular}{ |c|c|c|c|c|c|c|c| } 
 \hline
-\textbf{Quantization} & \textbf{Final sparsity} & \textbf{$\alpha$} &\textbf{Size} &\textbf{Compr. size} &\textbf{TempMAE}&\textbf{HumMAE} \\
+\vspace{-0.09cm}
+
+\textbf{Model} &\textbf{Quantization} & \textbf{Final} & \textbf{$\alpha$} &\textbf{Size} &\textbf{Compressed} &\textbf{Temp}&\textbf{Hum} \\
+&&\textbf{sparsity}&&&\textbf{size}&\textbf{MAE}&\textbf{MAE}\\
 \hline
-Weights only & 0.745 & 0.12 & 5246 B & 1992 B & 0.4812 °C & 1.786 \% \\ 
-Weights only & 0.75  & 0.07 & 4480 B & 1689 B & 0.4795 °C & 1.879 \% \\ 
+A&Weights only & 0.745 & 0.12 & 5246 B & 1992 B & 0.4812 °C & 1.786 \% \\ 
+B&Weights only & 0.75  & 0.07 & 4480 B & 1689 B & 0.4795 °C & 1.879 \% \\ 
 \hline
 
 \end{tabular}
@@ -70,32 +73,51 @@ Weights only & 0.75  & 0.07 & 4480 B & 1689 B & 0.4795 °C & 1.879 \% \\
 
 \end{center}
 
-\vspace{0.1cm}
 
 \section{Keyword Spotting}
 
-For keyword spotting on the mini speech command dataset, we used the DS-CNN model with weights-only quantization, obtaining the models in the table below:
-\\
+For keyword spotting on the mini speech command dataset, we used the DS-CNN model with weights-only quantization, using the following hyperparameters:
+
 \begin{center}
-\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
-\textbf{Quantiz.} &\textbf{F.S.} & \textbf{$\alpha$} &\textbf{Size} &\textbf{Compr.}&  \textbf{Inf. Latency}& \textbf{Tot. Latency} &\textbf{Test acc.}\\
+\vspace{-0.1cm}
+
+\textbf{Model} &\textbf{Quantization} &\textbf{MFCC} &\textbf{Final} & \textbf{$\alpha$} &\textbf{Epochs} &\textbf{Learning} \\
+
+&&&\textbf{sparsity}&&&\textbf{Rate} \\
 \hline
-Weights only & 0.9 & 0.7 & 77248 B & 21764 B & 9.03ms&   66.71ms & 0.91375 \\ 
-Weights only & - &  0.3  & 26960 B & 23233 B  &  1.16ms& 58.72ms & 0.91 \\ 
-Weights only & - &  0.4  & 40320 B & 34831 B  & 4.52ms & 21.07ms & 0.9175 \\ 
+A & Weights only & YES &0.9 & 0.7  & 20  & 0.0075\\
+B& Weights only & YES &- &  0.3   & 30 & 0.005\\ 
+C & Weights only & NO &- &  0.4   & 30 & 0.01\\ 
 
 \hline
 \end{tabular}
-\captionof{table}{Metrics for the final models obtained (version A, B and C)} 
+\captionof{table}{Hyperparameters for the final models  (version A, B and C)} 
+\end{center}
+Like before, we adopted a callback function to monitor the accuracy metric on the validation set.
+In order to obtain the performances requested in version B, we used a quite low parameter $\alpha$, to reduce inference computation. For version C instead, we switched to STFT in order to dramatically reduce processing time.
+Stft and mfcc are computed with the same parameter of the labs.
+\\\\
+The final results are shown in the table:
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\vspace{-0.1cm}
+
+\textbf{Model} &\textbf{Size} &\textbf{Compr.}&  \textbf{Inference }& \textbf{Total}  &\textbf{Test} \\
+&\textbf{Sparsity}&\textbf{size}&\textbf{Latency}&\textbf{Latency}&\textbf{Accuracy}\\
+\hline
+A  & 77248 B & 21764 B & 9.03ms&   66.71ms  & 0.91375 \\ 
+B  & 26960 B & 23233 B  &  1.16ms& 58.72ms & 0.91 \\ 
+C  & 40320 B & 34831 B  & 4.52ms & 21.07ms  & 0.9175 \\ 
+
+\hline
+\end{tabular}
+\captionof{table}{Metrics for the final models (version A, B and C)} 
 \end{center}
 
-\vspace{0.5cm}
-
-As before, we adopted a callback function to monitor the accuracy metric on the validation set.
-In order to obtain the performances requested in version B, we used a quite low parameter $\alpha$, to reduce inference computation. For version C instead, we switched to STFT in order to dramatically reduce processing time.
-\\\\
-For both models, compression has been perormed thanks to the zlib library. Final memory performances were calculated by considering the compressed model.
+For both models, compression has been performed thanks to the zlib library. Final memory performances were calculated by considering the compressed model.
 For both tasks, we used the original architectures provided in the laboratory.
 
 \end{document}
