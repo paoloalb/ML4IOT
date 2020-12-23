@@ -189,7 +189,6 @@ print(f"Test set size: {len(test_files)}")
 
 # hardcoded labels to avoid different orders based on different listdir implementation during testing
 LABELS = ["down", "go", "left", "no", "right", "stop", "up", "yes"]
-print(LABELS)
 
 generator = SignalGenerator(LABELS, SAMPLING_RATE, **options)
 train_ds = generator.make_dataset(train_files, True)
