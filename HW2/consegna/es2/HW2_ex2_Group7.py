@@ -30,7 +30,7 @@ if args.version == "a":
 	STRUCTURED_W = 0.7
 	MAGNITUDE_FS =  0.9
 
-if args.version == "b":	
+if args.version == "b":
 	MODEL = "DS-CNN"
 	MFCC = True
 	EPOCHS = 30
@@ -38,7 +38,7 @@ if args.version == "b":
 	QUANTIZATION = "W"
 	STRUCTURED_W = 0.3
 	MAGNITUDE_FS =  None
-	
+
 if args.version == "c":
 	MODEL = "DS-CNN"
 	MFCC = False
@@ -190,7 +190,6 @@ print(f"Test set size: {len(test_files)}")
 LABELS = ["down", "go", "left", "no", "right", "stop", "up", "yes"]
 print(LABELS)
 
-
 generator = SignalGenerator(LABELS, SAMPLING_RATE, **options)
 train_ds = generator.make_dataset(train_files, True)
 val_ds = generator.make_dataset(val_files, False)
@@ -236,7 +235,7 @@ if MODEL == "CNN":
 		keras.layers.GlobalAveragePooling2D(),
 		keras.layers.Dense(units=len(LABELS))
 ])
-if MODEL == "DS-CNN":		
+if MODEL == "DS-CNN":
 	model = keras.Sequential([
 		keras.layers.Conv2D(input_shape=input_shape, filters=int(256*ALPHA), kernel_size=[3, 3], strides=strides, use_bias=False),
 		keras.layers.BatchNormalization(momentum=0.1),
@@ -250,7 +249,7 @@ if MODEL == "DS-CNN":
 		keras.layers.BatchNormalization(momentum=0.1),
 		keras.layers.ReLU(),
 		keras.layers.GlobalAveragePooling2D(),
-		keras.layers.Dense(units=len(LABELS))	
+		keras.layers.Dense(units=len(LABELS))
 ])
 ##################################################################################################
 
@@ -270,7 +269,7 @@ if QUANTIZATION:
 
 if STRUCTURED_W:
 	params_to_save.append(f"Structured_w: {STRUCTURED_W}\n")
-	
+
 if MAGNITUDE_FS:
 	params_to_save.append(f"Magnitude_fs: {MAGNITUDE_FS}\n")
 
@@ -304,17 +303,17 @@ if MAGNITUDE_FS:
 							end_step=len(train_ds)*15
 							)
 	}
-	
+
 	callbacks.append(tfmot.sparsity.keras.UpdatePruningStep())
-	
+
 	prune_low_magnitude = tfmot.sparsity.keras.prune_low_magnitude
 	model = prune_low_magnitude(model, **pruning_params)
-	
+
 	if MFCC:
 		model.build([32, 49, 10])
-	else: 
+	else:
 		model.build([32, 32, 32])
-		
+
 ##################################################################################################
 
 
@@ -324,10 +323,10 @@ optimizer = tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE)
 model.compile(optimizer=optimizer,
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=[tf.keras.metrics.SparseCategoricalAccuracy()]
-              )	
-              
-model.summary()  
-params = model.count_params()            
+              )
+
+model.summary()
+params = model.count_params()
 ##################################################################################################
 
 
@@ -347,7 +346,7 @@ if MAGNITUDE_FS:
 converter = tf.lite.TFLiteConverter.from_keras_model(model)
 if QUANTIZATION == "W":
 	converter.optimizations = [tf.lite.Optimize.DEFAULT]
-		
+
 else:
 	if QUANTIZATION == "W+A":
 		converter.optimizations = [tf.lite.Optimize.DEFAULT]
@@ -355,7 +354,7 @@ else:
 		converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
 		converter.inference_input_type = tf.uint8
 		converter.inference_output_type = tf.uint8
-			
+
 tflite_model = converter.convert()
 ##################################################################################################
 
@@ -364,8 +363,8 @@ tflite_model = converter.convert()
 with open(filepath_base+"/"+filename+".tflite", 'wb') as fp:
 	fp.write(tflite_model)
 print(f"Final model size: {os.path.getsize(filepath_base+'/'+filename+'.tflite')} bytes")
-	
- 
+
+
 with open(filepath_base+"/"+filename+".zlib", 'wb') as fp:
 	tflite_compressed = zlib.compress(tflite_model)
 	fp.write(tflite_compressed)
@@ -375,7 +374,7 @@ print(f"Compressed size: {os.path.getsize(filepath_base+'/'+filename+'.zlib')} b
 
 #### EVALUATE MODEL ON TEST SET ##################################################################
 interpreter = tflite.Interpreter(filepath_base+'/'+filename+'.tflite')
-    	
+
 interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
@@ -388,12 +387,12 @@ for x, y_true in test_ds.unbatch().batch(1):
 	interpreter.set_tensor(input_details[0]['index'], x)
 	interpreter.invoke()
 	y_pred = interpreter.get_tensor(output_details[0]['index'])
-		
+
 	y_pred = y_pred.squeeze() #remove batch dim
 	y_pred = np.argmax(y_pred)
-		
+
 	y_true = y_true.numpy().squeeze()
-		
+
 	accuracy += y_pred==y_true #1 if True, 0 otherwise
 	count += 1
 
