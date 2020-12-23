@@ -47,10 +47,10 @@ Student ID: s278176\\
 
 
 \section{Multi-Step Temperature and Humidity Forecasting}
-After implementing a WindowGenerator class returning 6 output steps, we started to train the models. We settled on a weights-only quantization, and after tweaking the pruning parameters, we found two versions of the CNN model that were able to respect the given constraints.
+After implementing a WindowGenerator class capable of returning 6 output steps, we started to train the models. We settled on a weights-only quantization, and after tweaking the pruning parameters, we found two versions of the CNN model that were able to respect the given constraints.
 The parameters changed in the 2 models were the final sparsity (\%) at which pruning ends, and the width multiplier $\alpha$.
 \\\\
-We adopted a callback function to stop the training when the validation set performances were not improving anymore. We adopted the standars Keras checkpoint approach, and we monitored the mean of the two MAE metrics for the checkpoint. 
+We adopted a callback function to stop the training when the validation set performances were not improving anymore. We used the standars Keras checkpoint approach, and we monitored the mean of the two MAE metrics for checkpointing. 
 \\\\
 In the following table we can see the results for the two models, that were both trained for 20 epochs, with learning rate 0.001:
 
@@ -97,7 +97,7 @@ C & Weights only & NO &- &  0.4   & 30 & 0.01\\
 \end{center}
 Like before, we adopted a callback function to monitor the accuracy metric on the validation set.
 In order to obtain the performances requested in version B, we used a quite low parameter $\alpha$, to reduce inference computation. For version C instead, we switched to STFT in order to dramatically reduce processing time.
-STFT and MFCC were computed with the same parameter used in the labs.
+STFT and MFCC were computed with the same parameters used in the labs.
 \\\\
 The final results are shown in the table:
 \begin{center}
@@ -116,10 +116,9 @@ C  & 40320 B & 34831 B  & 4.52ms & 21.07ms  & 0.9175 \\
 \end{tabular}
 \captionof{table}{Metrics for the final models (version A, B and C)} 
 \end{center}
-We noticed that on different OS or different PCs, the way python lists the directories changes. This means that the order of the labels could change if it is obtained directly from the directory names.
-To solve this issue, the order was fixed with a list.
-\\
 For both models, compression was performed thanks to the zlib library. Final memory performances were calculated by considering the compressed model.
 For both tasks, we used the original architectures provided in the laboratory.
-
+\\
+We noticed that on different OS or different PCs, the way python lists the directories changes. This means that the order of the labels could change when obtained directly from the directory names.
+To solve this issue, the order was fixed with a list.
 \end{document}
