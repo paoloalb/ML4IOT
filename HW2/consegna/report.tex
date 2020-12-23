@@ -3,7 +3,7 @@
 \usepackage[english]{babel}
 \usepackage[document]{ragged2e}
 \usepackage{todonotes}
-\usepackage[a4paper, total={6.2in, 12in}]{geometry}
+\usepackage[a4paper, total={6.2in, 12.5in}]{geometry}
 \usepackage{subcaption}
 \usepackage{graphicx}
 \usepackage{grffile}
@@ -32,18 +32,18 @@ Student ID: s278176\\
 \justifying
 
 \title{
-    \vspace{.5cm}
+    \vspace{0.8cm}
     
     Machine Learning for IoT - 
     Politecnico di Torino\\
-    \vspace{1cm}
-    \Large \textbf{Homework 2 report}
     \vspace{.5cm}
+    \Large \textbf{Homework 2 report}
+    \vspace{.1cm}
 }
 
 \maketitle
 \thispagestyle{empty} 
-\vspace{-0.5cm}
+\vspace{-0.9cm}
 
 
 \section{Multi-Step Temperature and Humidity Forecasting}
@@ -116,8 +116,10 @@ C  & 40320 B & 34831 B  & 4.52ms & 21.07ms  & 0.9175 \\
 \end{tabular}
 \captionof{table}{Metrics for the final models (version A, B and C)} 
 \end{center}
-
-For both models, compression has been performed thanks to the zlib library. Final memory performances were calculated by considering the compressed model.
+We noticed that on different OS or different PCs, the way python lists the directories changes. This means that the order of the labels could change if it is obtained directly from the directory names.
+To solve this issue, the order was fixed with a list.
+\\
+For both models, compression was performed thanks to the zlib library. Final memory performances were calculated by considering the compressed model.
 For both tasks, we used the original architectures provided in the laboratory.
 
 \end{document}
