@@ -22,7 +22,7 @@ EPOCHS = 20
 #### PARSING INPUT PARAMETERS ####################################################################
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--version", type=str, default="a")
+parser.add_argument("--version", type=str)
 
 args = parser.parse_args()
 
@@ -207,27 +207,12 @@ if MODEL == "CNN":
 
     ])
 
-##################################################################################################
+filename = f"Group7_th_{args.version}"
 
-#### BUILD MODEL PATH AND NAME ###################################################################
-filename = f"Group7_kws_{args.version}"
-
-filename += f"model_{MODEL}"
-
-filename += f"_quantization_{QUANTIZATION}"
-
-filename += f"_structured_w_{ALPHA}"
-
-filename += f"_magnitude_fs_{MAGNITUDE_FS}"
-
-filename += f"_compressed_{COMPRESSED}"
-
-filename += strftime("_%Y-%m-%d_%H:%M:%S", gmtime())
-
-filepath_base = "models/" + filename
+filepath_base = f"./th_models/version_{args.version}"
 
 print(f"\nModel will be saved in {filepath_base}")
-##################################################################################################
+
 
 #### CALLBACKS ###################################################################################
 checkpoint = tf.keras.callbacks.ModelCheckpoint(
