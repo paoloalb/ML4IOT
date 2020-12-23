@@ -97,7 +97,7 @@ C & Weights only & NO &- &  0.4   & 30 & 0.01\\
 \end{center}
 Like before, we adopted a callback function to monitor the accuracy metric on the validation set.
 In order to obtain the performances requested in version B, we used a quite low parameter $\alpha$, to reduce inference computation. For version C instead, we switched to STFT in order to dramatically reduce processing time.
-Stft and mfcc are computed with the same parameter of the labs.
+STFT and MFCC were computed with the same parameter used in the labs.
 \\\\
 The final results are shown in the table:
 \begin{center}
@@ -106,7 +106,7 @@ The final results are shown in the table:
 \vspace{-0.1cm}
 
 \textbf{Model} &\textbf{Size} &\textbf{Compr.}&  \textbf{Inference }& \textbf{Total}  &\textbf{Test} \\
-&\textbf{Sparsity}&\textbf{size}&\textbf{Latency}&\textbf{Latency}&\textbf{Accuracy}\\
+&&\textbf{size}&\textbf{Latency}&\textbf{Latency}&\textbf{Accuracy}\\
 \hline
 A  & 77248 B & 21764 B & 9.03ms&   66.71ms  & 0.91375 \\ 
 B  & 26960 B & 23233 B  &  1.16ms& 58.72ms & 0.91 \\ 
