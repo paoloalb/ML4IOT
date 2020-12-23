@@ -76,7 +76,7 @@ class MAEmetric(tf.keras.metrics.Metric):
             "T+H": 2}
         idx = switcher.get(self.metric_type.upper(), "Invalid argument")
 
-        if idx == 2:
+        if idx == 2:  # If i chose T+H as the metric_type argument, i calculate the mean of the 2 metrics
             return (tf.math.divide_no_nan(self.total, self.count)[0] + tf.math.divide_no_nan(self.total, self.count)[
                 1]) / 2
         else:
@@ -196,7 +196,7 @@ if MODEL == "MLP":
         keras.layers.Reshape((6, 2), input_shape=(12,))
     ])
 
-if MODEL == "CNN":
+elif MODEL == "CNN":
     model = keras.Sequential([
         keras.layers.Conv1D(filters=int(64 * ALPHA), kernel_size=3, activation="relu", name="conv1",
                             input_shape=(6, 2)),
@@ -206,6 +206,8 @@ if MODEL == "CNN":
         keras.layers.Reshape((6, 2), input_shape=(12,))
 
     ])
+else:
+    raise ValueError("Model not found: " + str(MODEL))
 
 filename = f"Group7_th_{args.version}"
 
@@ -250,7 +252,7 @@ model.build([32, 6, 2])
 #### MODEL COMPILING #############################################################################
 temp_metric = MAEmetric(name="TempMAE", metric_type="T")
 hum_metric = MAEmetric(name="HumMAE", metric_type="H")
-# We also add a third metric, that is the average of the two
+# We also add a third metric, that is the average of the two (for checkpointing)
 temp_hum_metric = MAEmetric(name="temp_hum_MAE", metric_type="T+H")
 
 metric = [temp_hum_metric, temp_metric, hum_metric]
