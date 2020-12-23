@@ -186,10 +186,16 @@ print(f"Train set size: {len(train_files)}")
 print(f"Val set size: {len(val_files)}")
 print(f"Test set size: {len(test_files)}")
 
+<<<<<<< Updated upstream
 # hardcoded labels to avoid different orders based on different listdir implementation during testing
 LABELS = ["down", "go", "left", "no", "right", "stop", "up", "yes"]
 print(LABELS)
 
+=======
+LABELS = np.array(tf.io.gfile.listdir(str(data_dir)))
+LABELS = LABELS[LABELS != "README.md"]
+LABELS= ['down', 'go', 'left', 'no', 'right', 'stop', 'up', 'yes']
+>>>>>>> Stashed changes
 generator = SignalGenerator(LABELS, SAMPLING_RATE, **options)
 train_ds = generator.make_dataset(train_files, True)
 val_ds = generator.make_dataset(val_files, False)
