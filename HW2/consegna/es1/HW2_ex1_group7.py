@@ -22,7 +22,7 @@ EPOCHS = 20
 #### PARSING INPUT PARAMETERS ####################################################################
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--version", type=str)
+parser.add_argument("--version", type=str, required=True)
 
 args = parser.parse_args()
 

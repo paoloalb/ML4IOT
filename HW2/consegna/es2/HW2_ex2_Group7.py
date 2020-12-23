@@ -17,7 +17,7 @@ np.random.seed(seed)
 
 #### PARSING INPUT PARAMETERS ####################################################################
 parser = argparse.ArgumentParser()
-parser.add_argument("--version", type=str)
+parser.add_argument("--version", type=str, required=True)
 
 args = parser.parse_args()
 
@@ -30,7 +30,7 @@ if args.version == "a":
 	STRUCTURED_W = 0.7
 	MAGNITUDE_FS =  0.9
 
-if args.version == "b":
+elif args.version == "b":
 	MODEL = "DS-CNN"
 	MFCC = True
 	EPOCHS = 30
@@ -39,7 +39,7 @@ if args.version == "b":
 	STRUCTURED_W = 0.3
 	MAGNITUDE_FS =  None
 
-if args.version == "c":
+elif args.version == "c":
 	MODEL = "DS-CNN"
 	MFCC = False
 	EPOCHS = 30
@@ -47,7 +47,8 @@ if args.version == "c":
 	QUANTIZATION = "W"
 	STRUCTURED_W = 0.4
 	MAGNITUDE_FS =  None
-
+else:
+    raise ValueError("Version argument must be a, b or c")
 ##################################################################################################
 
 #### FIXED PARAMETERS ############################################################################
