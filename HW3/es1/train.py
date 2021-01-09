@@ -24,17 +24,18 @@ assert args.version in ["big", "little"], "Error: parameter version is not corre
 
 
 def bigtraining():
-    pass
+    
+    pass # mfcc
 
 
-def smalltraining():
-    pass
+def littletraining():
+    pass #stft
 
 
 if args.version == "big":
     bigtraining()
 else:
-    smalltraining()
+    littletraining()
 
 zip_path = tf.keras.utils.get_file(
     origin="http://storage.googleapis.com/download.tensorflow.org/data/mini_speech_commands.zip",
