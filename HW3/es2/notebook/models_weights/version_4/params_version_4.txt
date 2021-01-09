@@ -1,6 +1,0 @@
-94696
-Model: CNN-2
-epochs: 25
-lr: 0.001
-Final size: 378308
-Testset accuracy: 0.92625

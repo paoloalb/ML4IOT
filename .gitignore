@@ -4,8 +4,6 @@ __pycache__/
 *$py.class
 
 env/
-HW3/es2/notebook/data/*
-HW3/es2/rpi/data/*
 
 # C extensions
 *.so
@@ -149,3 +147,7 @@ HW2/consegna/es1/th_models/
 HW2/consegna/es2/kws_models/
 
 HW3/data/
+
+HW3/es2/notebook/data/
+HW3/es2/rpi/data/
+

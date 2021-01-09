@@ -22,7 +22,7 @@ clientID = "cooperative_client"
 #############################################################################################################################
 
 
-N = 5  # number of clients
+N = 4  # number of clients
 predictions = []
 
 
