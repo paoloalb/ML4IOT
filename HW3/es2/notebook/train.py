@@ -13,6 +13,7 @@ from SignalGenerator import SignalGenerator
 # NUMBER OF MODELS
 N = 4
 
+
 #### PARSING INPUT PARAMETERS ####################################################################
 parser = argparse.ArgumentParser()
 parser.add_argument("--version", type=int, required=True)
