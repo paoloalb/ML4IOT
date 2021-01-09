@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+env/
+HW3/es2/notebook/data/*
+HW3/es2/rpi/data/*
+
 # C extensions
 *.so
 

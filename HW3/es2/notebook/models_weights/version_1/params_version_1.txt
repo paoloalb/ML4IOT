@@ -1,0 +1,6 @@
+298632
+Model: CNN-0
+epochs: 20
+lr: 0.01
+Final size: 1192456
+Testset accuracy: 0.9425
