@@ -27,10 +27,10 @@ if args.version == 0:
 	SEED = 42	
 	
 elif args.version == 1:
-	MODEL = "DS-CNN-1"
+	MODEL = "CNN-1"
 	EPOCHS = 20
 	LEARNING_RATE = 0.01
-	SEED = 42
+	SEED = 42	
 	
 elif args.version == 2:
 	MODEL = "DS-CNN-0"
@@ -39,7 +39,7 @@ elif args.version == 2:
 	SEED = 42	
 	
 elif args.version == 3:
-	MODEL = "CNN-1"
+	MODEL = "DS-CNN-1"
 	EPOCHS = 20
 	LEARNING_RATE = 0.01
 	SEED = 42
