@@ -144,8 +144,8 @@ f = open("labels.txt", "r")
 LABELS = f.read().split(" ")
 f.close()
 
+
 def bigtraining():
-    MODEL = "CNN"
     EPOCHS = 20
     LEARNING_RATE = 0.01
     SAMPLING_RATE = 16000
@@ -159,23 +159,7 @@ def bigtraining():
     val_ds = generator.make_dataset(val_files, False)
     test_ds = generator.make_dataset(test_files, False)
 
-    # model = keras.Sequential([
-    #     keras.layers.Conv2D(input_shape=input_shape, filters=int(256 * ALPHA), kernel_size=[3, 3], strides=strides,
-    #                         use_bias=False),
-    #     keras.layers.BatchNormalization(momentum=0.1),
-    #     keras.layers.ReLU(),
-    #     keras.layers.DepthwiseConv2D(kernel_size=[3, 3], strides=[1, 1], use_bias=False),
-    #     keras.layers.Conv2D(filters=int(256 * ALPHA), kernel_size=[1, 1], strides=[1, 1], use_bias=False),
-    #     keras.layers.BatchNormalization(momentum=0.1),
-    #     keras.layers.ReLU(),
-    #     keras.layers.DepthwiseConv2D(kernel_size=[3, 3], strides=[1, 1], use_bias=False),
-    #     keras.layers.Conv2D(filters=int(256 * ALPHA), kernel_size=[1, 1], strides=[1, 1], use_bias=False),
-    #     keras.layers.BatchNormalization(momentum=0.1),
-    #     keras.layers.ReLU(),
-    #     keras.layers.GlobalAveragePooling2D(),
-    #     keras.layers.Dense(units=len(LABELS))
-    # ])
-
+    # CNN:
     model = keras.Sequential([
         keras.layers.Conv2D(input_shape=input_shape, filters=int(128), kernel_size=[3, 3], strides=strides,
                             use_bias=False),
@@ -191,7 +175,6 @@ def bigtraining():
         keras.layers.Dense(units=len(LABELS))
     ])
 
-    # filepath_base = f"./models/{args.version}"
     filename = f"Group7_{args.version}"
 
     checkpoint = tf.keras.callbacks.ModelCheckpoint(
@@ -214,12 +197,9 @@ def bigtraining():
                   )
 
     model.summary()
-    params = model.count_params()
 
     model.fit(train_ds, epochs=EPOCHS, verbose=1, validation_data=val_ds, callbacks=callbacks)
     model.load_weights('./weights/' + filename)
-
-    test_acc = model.evaluate(test_ds, verbose=1)[-1]
 
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
     tflite_model = converter.convert()
@@ -235,7 +215,6 @@ def bigtraining():
         tflite_compressed = zlib.compress(tflite_model)
         fp.write(tflite_compressed)
     print(f"Compressed size: {os.path.getsize('./models/' + filename + '.zlib')} bytes")
-    ##################################################################################################
 
     #### EVALUATE MODEL ON TEST SET ##################################################################
     interpreter = tflite.Interpreter('./models/' + filename + '.tflite')
@@ -243,8 +222,6 @@ def bigtraining():
     interpreter.allocate_tensors()
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
-
-    accuracy = tf.keras.metrics.SparseCategoricalAccuracy()
 
     accuracy = 0
     count = 0
@@ -268,7 +245,6 @@ def bigtraining():
 
 
 def littletraining():
-    MODEL = "DS-CNN"
     MFCC = False
     EPOCHS = 30
     LEARNING_RATE = 0.01
@@ -276,7 +252,6 @@ def littletraining():
     STRUCTURED_W = 0.4  # alpha
     MAGNITUDE_FS = 0.8  # final sparsity
 
-    #### FIXED PARAMETERS ############################################################################
     STFT_OPTIONS = {'frame_length': 256, 'frame_step': 128, 'mfcc': False}
     MFCC_OPTIONS = {'frame_length': 640, 'frame_step': 320, 'mfcc': True,
                     'lower_frequency': 20, 'upper_frequency': 4000, 'num_mel_bins': 40,
@@ -298,43 +273,17 @@ def littletraining():
     val_ds = generator.make_dataset(val_files, False)
     test_ds = generator.make_dataset(test_files, False)
 
-    ##########################################
-
-    # model = keras.Sequential([
-    #     keras.layers.Conv2D(input_shape=input_shape, filters=int(256 * ALPHA), kernel_size=[3, 3], strides=strides,
-    #                         use_bias=False),
-    #     keras.layers.BatchNormalization(momentum=0.1),
-    #     keras.layers.ReLU(),
-    #     keras.layers.DepthwiseConv2D(kernel_size=[3, 3], strides=[1, 1], use_bias=False),
-    #     keras.layers.Conv2D(filters=int(256 * ALPHA), kernel_size=[1, 1], strides=[1, 1], use_bias=False),
-    #     keras.layers.BatchNormalization(momentum=0.1),
-    #     keras.layers.ReLU(),
-    #     keras.layers.DepthwiseConv2D(kernel_size=[3, 3], strides=[1, 1], use_bias=False),
-    #     keras.layers.Conv2D(filters=int(256 * ALPHA), kernel_size=[1, 1], strides=[1, 1], use_bias=False),
-    #     keras.layers.BatchNormalization(momentum=0.1),
-    #     keras.layers.ReLU(),
-    #     keras.layers.GlobalAveragePooling2D(),
-    #     keras.layers.Dense(units=len(LABELS))
-    # ])
-
-
-    #### STRUCTURED PRUNING ##########################################################################
     if STRUCTURED_W:
         ALPHA = STRUCTURED_W
     else:
         ALPHA = 1
-
 
     #### PT QUANTIZATION #############################################################################
     def representative_dataset_gen():
         for x, _ in train_ds.take(1000):
             yield [x]
 
-
-    ##################################################################################################
-
-
-    ##################################################################################################
+    # DS-CNN
     model = keras.Sequential([
         keras.layers.Conv2D(input_shape=input_shape, filters=int(256 * ALPHA), kernel_size=[3, 3], strides=strides,
                             use_bias=False),
@@ -396,17 +345,13 @@ def littletraining():
                   )
 
     model.summary()
-    params = model.count_params()
 
     model.fit(train_ds, epochs=EPOCHS, verbose=1, validation_data=val_ds, callbacks=callbacks)
     model.load_weights('./weights/' + filename)
 
-    test_acc = model.evaluate(test_ds, verbose=1)[-1]
-
     #### CONVERT TO TFLITE ############
     if MAGNITUDE_FS:
         model = tfmot.sparsity.keras.strip_pruning(model)
-
 
     # # POST TRAINING QUANTIZATION
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
@@ -444,8 +389,6 @@ def littletraining():
     interpreter.allocate_tensors()
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
-
-    accuracy = tf.keras.metrics.SparseCategoricalAccuracy()
 
     accuracy = 0
     count = 0
