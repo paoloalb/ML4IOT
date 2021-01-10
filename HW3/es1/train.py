@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--version",
                     type=str,
                     # required=True,
-                    default="little",  # togliere il default alla consegna
+                    default="big",  # togliere il default alla consegna
                     help="Version of the model (big or little)")
 
 args = parser.parse_args()
@@ -274,7 +274,7 @@ def littletraining():
     LEARNING_RATE = 0.01
     QUANTIZATION = "W"
     STRUCTURED_W = 0.4  # alpha
-    MAGNITUDE_FS = 0.7  # final sparsity
+    MAGNITUDE_FS = 0.8  # final sparsity
 
     #### FIXED PARAMETERS ############################################################################
     STFT_OPTIONS = {'frame_length': 256, 'frame_step': 128, 'mfcc': False}
