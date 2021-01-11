@@ -115,7 +115,7 @@ class BigService(object):
 
 		print(y_pred)
 
-		sample_label = {self.LABELS[i]: y_pred[i] for i, j in enumerate(self.LABELS)}
+		sample_label = {"label":str(np.argmax(np.array(y_pred)))}
 
 		out = {"bn": "big_service", "e": sample_label}
 		
