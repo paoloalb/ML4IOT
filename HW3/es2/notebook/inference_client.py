@@ -7,6 +7,7 @@ import argparse
 import numpy as np
 import time
 
+
 #### PARSING INPUT PARAMETERS ####################################################################
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, required=True)
@@ -38,22 +39,31 @@ class myHandler(MQTT_Handler):
 		if topic == recording_topic:
 			data = json.loads(msg)
 			
+			# logging
 			print(f"client_{args.model.split('/')[-1]}: Received recording from {data['bn']}, recording id: {data['record_id']}")
 			
-			recording = np.frombuffer(base64.b64decode(bytes(data["e"][0]["vd"], "utf-8")), dtype=np.float32)
-			recording = np.reshape(recording, (1, 49, 10, 1))
-			interpreter.set_tensor(input_details[0]['index'], recording)
-			interpreter.invoke()
-			y_pred = interpreter.get_tensor(output_details[0]['index'])
-		
-			y_pred = y_pred.squeeze() #remove batch dim
 			
-			encoded_logits = base64.b64encode(y_pred).decode()
+			recording = np.frombuffer(base64.b64decode(data["e"][0]["vd"]), dtype=np.float32)		# take the recording from the message (base64 string ->  numpy object)
+			recording = np.reshape(recording, (1, 49, 10, 1))				# reshape the numpy array
+			
+			interpreter.set_tensor(input_details[0]['index'], recording)	# pass the input data to the model
+			interpreter.invoke()
+			
+			y_pred = interpreter.get_tensor(output_details[0]['index'])		# get the output of the last layer of the model 
+			y_pred = y_pred.squeeze() 										#remove batch dim
+			# also the logist are sent with SenML and are encoded in base64
+			encoded_logits = base64.b64encode(y_pred).decode()				# encode the logits (numpy array -> base64 string)
+			
+			# send the message with SenML
 			logits = {"n": "logits", "t":int(time.time()), "vd": encoded_logits}
 			message = {"bn": f"client_{args.model.split('/')[-1]}", "record_id":data["record_id"], "e": [logits]}
 			
+			# record id is an additional field used for logging and debugging
+			
+			# logging
 			print(f"client_{args.model.split('/')[-1]}: Responding to {data['bn']} with the inference of record {data['record_id']}")
-			handler.myMqttClient.myPublish(preds_topic, json.dumps(message))
+			
+			handler.myMqttClient.myPublish(preds_topic, json.dumps(message))	# publish message on predictions topic
 ##################################################################################################
 
 
@@ -67,23 +77,3 @@ while True:
 	time.sleep(0.001)
 
 
-
-'''
-from MyMQTT import MyMQTT
-from MQTT_Handler import MQTT_Handler
-import time
-
-
-if __name__ == "__main__":
-	test = MQTT_Handler("subscriber 1")
-	test.run()
-	test.myMqttClient.mySubscribe("276545/recording")
-
-	a = 0
-	while (a < 30):
-		a += 1
-		time.sleep(1)
-
-	test.end()
-
-'''

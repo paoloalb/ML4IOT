@@ -31,8 +31,10 @@ class myHandler(MQTT_Handler):
 	def notify(self, topic, msg):
 		if topic == preds_topic:
 			data = json.loads(msg)
-			print(f"Received inference from {data['bn']}, recording id: {data['record_id']}")
-			logits = np.frombuffer(base64.b64decode(bytes(data["e"][0]["vd"], "utf-8")), dtype=np.float32)
+			print(f"Received inference from {data['bn']}, recording id: {data['record_id']}")	# logging
+			
+			# decode the message (base64 string -> numpy array)
+			logits = np.frombuffer(base64.b64decode(data["e"][0]["vd"]), dtype=np.float32)
 			
 			predictions.append(list(logits))
 #############################################################################################################################
@@ -103,30 +105,36 @@ count = 0
 
 # cycle through all the test set
 for x, y_true in test_ds.unbatch().batch(1):
-	print(f"{count+1}/{len(test_files)}")
-	encoded_audio = base64.b64encode(x).decode()
-		
+	print(f"{count+1}/{len(test_files)}")					# logging
+	
+	encoded_audio = base64.b64encode(x).decode()			# encode sample
+	
+	# create the message in SenML
 	audio = {"n": "audio", "t":int(time.time()), "vd": encoded_audio}
 	message = {"bn": "cooperative_client", "record_id":count, "e": [audio]}
-	handler.myMqttClient.myPublish(recording_topic, json.dumps(message))
-		
+	
+	handler.myMqttClient.myPublish(recording_topic, json.dumps(message))		# publish the message on the recording topic
+	
+	# wait until all the client had answered with their prediction	
 	while len(predictions)!=N:
 		time.sleep(0.001)
 	
+	# take the predictions and compute the mean of the logits (the sum in enough because the argmax returns the same result)
 	predictions = np.asarray(predictions)
 	predictions = predictions.sum(axis=0)
-	pred = np.argmax(predictions)
+	pred = np.argmax(predictions)			# take the final cooperative prediction
 	
+	# count how many correct
 	if pred == y_true.numpy().squeeze():
 		correct += 1
 		
 	count += 1
 
-	print(f"Accuracy: {correct/count:.4f}")
-	predictions = []
+	print(f"Accuracy: {correct/count:.4f}")		# logging
+	predictions = []							# after each sample, reset the prediction list
 #############################################################################################################################
 print(f"Accuracy: {correct/count:.2f}")
 
-handler.end()
+handler.end()		# terminate MQTT client
 			
 		
