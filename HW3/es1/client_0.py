@@ -14,7 +14,12 @@ def SuccessChecker_BinEntropy(inf_array, threshold):
     else:
         return False
 
-
+def SuccessChecker_FirstSecond(inf_array, threshold):
+    ord_array = np.sort(inf_array)[::-1]
+    if (ord_array[0] - ord_array[1]) >= threshold:
+        return True
+    else:
+        return False
 #####################################################
 
 COMM_COST = 0
