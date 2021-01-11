@@ -18,7 +18,7 @@ def SuccessChecker_BinEntropy(inf_array, threshold):
 #####################################################
 
 COMM_COST = 0
-URL = "http://192.168.1.170:8080"
+URL = "http://192.168.1.170:8080"  # url del pc
 
 
 def BigRequest(url, file_path):

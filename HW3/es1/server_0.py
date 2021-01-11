@@ -9,8 +9,12 @@ import base64
 
 
 class BigService(object): 
-	exposed= True 
+	exposed= True
 	
+	f = open("labels.txt", "r")
+	LABELS = f.read().split(" ")
+	f.close()
+
 	def POST(self, *path, **query): 
 		
 		json_obj = cherrypy.request.body.read()
@@ -28,10 +32,6 @@ class BigService(object):
 		y_pred = interpreter.get_tensor(output_details[0]['index'])
 
 		y_pred = y_pred.squeeze()  # remove batch dim
-
-		f = open("labels.txt", "r")
-		LABELS = f.read().split(" ")
-		f.close()
 
 		sample_label = {LABELS[i]: y_pred[i] for i, j in enumerate(LABELS)}
 
