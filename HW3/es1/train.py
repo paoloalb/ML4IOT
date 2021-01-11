@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--version",
                     type=str,
                     # required=True,
-                    default="big",  # togliere il default alla consegna
+                    default="little",  # togliere il default alla consegna
                     help="Version of the model (big or little)")
 
 args = parser.parse_args()
@@ -245,43 +245,28 @@ def bigtraining():
 
 
 def littletraining():
-    MFCC = False
     EPOCHS = 30
     LEARNING_RATE = 0.01
-    QUANTIZATION = "W"
-    STRUCTURED_W = 0.4  # alpha
+    STRUCTURED_W = 0.4# alpha
     MAGNITUDE_FS = 0.8  # final sparsity
 
     STFT_OPTIONS = {'frame_length': 256, 'frame_step': 128, 'mfcc': False}
-    MFCC_OPTIONS = {'frame_length': 640, 'frame_step': 320, 'mfcc': True,
-                    'lower_frequency': 20, 'upper_frequency': 4000, 'num_mel_bins': 40,
-                    'num_coefficients': 10}
 
     SAMPLING_RATE = 16000
 
-    if MFCC is True:
-        options = MFCC_OPTIONS
-        strides = [2, 1]
-        input_shape = [49, 10, 1]
-    else:
-        options = STFT_OPTIONS
-        strides = [2, 2]
-        input_shape = [32, 32, 1]
+
+    options = STFT_OPTIONS
+    strides = [2, 2]
+    input_shape = [32, 32, 1]
 
     generator = SignalGenerator(LABELS, SAMPLING_RATE, **options)
     train_ds = generator.make_dataset(train_files, True)
     val_ds = generator.make_dataset(val_files, False)
     test_ds = generator.make_dataset(test_files, False)
 
-    if STRUCTURED_W:
-        ALPHA = STRUCTURED_W
-    else:
-        ALPHA = 1
 
-    #### PT QUANTIZATION #############################################################################
-    def representative_dataset_gen():
-        for x, _ in train_ds.take(1000):
-            yield [x]
+    ALPHA = STRUCTURED_W
+
 
     # DS-CNN
     model = keras.Sequential([
@@ -317,25 +302,21 @@ def littletraining():
     callbacks = [checkpoint]
 
     # MAGNITUDE BASED PRUNING
-    if MAGNITUDE_FS:
-        pruning_params = {'pruning_schedule':
-            tfmot.sparsity.keras.PolynomialDecay(
-                initial_sparsity=0.30,
-                final_sparsity=MAGNITUDE_FS,
-                begin_step=len(train_ds) * 5,
-                end_step=len(train_ds) * 15
-            )
-        }
+    pruning_params = {'pruning_schedule':
+        tfmot.sparsity.keras.PolynomialDecay(
+            initial_sparsity=0.30,
+            final_sparsity=MAGNITUDE_FS,
+            begin_step=len(train_ds) * 5,
+            end_step=len(train_ds) * 15
+        )
+    }
 
-        callbacks.append(tfmot.sparsity.keras.UpdatePruningStep())
+    callbacks.append(tfmot.sparsity.keras.UpdatePruningStep())
 
-        prune_low_magnitude = tfmot.sparsity.keras.prune_low_magnitude
-        model = prune_low_magnitude(model, **pruning_params)
+    prune_low_magnitude = tfmot.sparsity.keras.prune_low_magnitude
+    model = prune_low_magnitude(model, **pruning_params)
 
-        if MFCC:
-            model.build([32, 49, 10])
-        else:
-            model.build([32, 32, 32])
+    model.build([32, 32, 32])
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE)
 
@@ -350,21 +331,13 @@ def littletraining():
     model.load_weights('./weights/' + filename)
 
     #### CONVERT TO TFLITE ############
-    if MAGNITUDE_FS:
-        model = tfmot.sparsity.keras.strip_pruning(model)
+    model = tfmot.sparsity.keras.strip_pruning(model)
 
     # # POST TRAINING QUANTIZATION
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
-    if QUANTIZATION == "W":
-        converter.optimizations = [tf.lite.Optimize.DEFAULT]
 
-    else:
-        if QUANTIZATION == "W+A":
-            converter.optimizations = [tf.lite.Optimize.DEFAULT]
-            converter.representative_dataset = representative_dataset_gen
-            converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
-            converter.inference_input_type = tf.uint8
-            converter.inference_output_type = tf.uint8
+    # Quantization:
+    converter.optimizations = [tf.lite.Optimize.DEFAULT]
 
     tflite_model = converter.convert()
 
@@ -410,8 +383,17 @@ def littletraining():
     print("Accuracy {}".format(accuracy))
     ##################################################################################################
 
+    print(
+        "epochs: " + str(EPOCHS) +
+        "\nlearning rate: " + str(LEARNING_RATE) +
+        "\nalpha: " + str(STRUCTURED_W) +
+        "\nMAGNITUDE_FS: " + str(MAGNITUDE_FS)
+    )
+
 
 if args.version == "big":
     bigtraining()
 else:
     littletraining()
+
+
