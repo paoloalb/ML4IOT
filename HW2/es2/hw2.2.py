@@ -218,6 +218,8 @@ if args.model == "CNN":
 		keras.layers.GlobalAveragePooling2D(),
 		keras.layers.Dense(units=len(LABELS))
 ])
+
+
 if args.model == "DS-CNN":		
 	model = keras.Sequential([
 		keras.layers.Conv2D(input_shape=input_shape, filters=int(256*ALPHA), kernel_size=[3, 3], strides=strides, use_bias=False),

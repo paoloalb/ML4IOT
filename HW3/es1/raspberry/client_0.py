@@ -93,6 +93,8 @@ insucces_count = 0
 
 entr = 0
 
+big_right, small_right = 0, 0
+
 for n, path in enumerate(test_files):
     x, y_true = generator.preprocess_with_stft(path)
 
@@ -113,7 +115,7 @@ for n, path in enumerate(test_files):
 
     entr += entropy(inference, base=2)
 
-    if not SuccessChecker_FirstSecond(inference, 0.2):
+    if not SuccessChecker_FirstSecond(inference, 0.25):
         print("NO SUCCESS")
         insucces_count += 1
         label, cost = BigRequest(URL, test_files[n], generator)
@@ -121,14 +123,18 @@ for n, path in enumerate(test_files):
         new_accuracy += label == y_true  # 1 if True, 0 otherwise
         COMM_COST += cost
        	
-        print(f"Big model prediction: {label}, true value: {y_true}")	
+        print(f"Big model prediction: {label}, true value: {y_true}")
+        if label == y_true:
+        	big_right += 1	
        	
     else:
         new_accuracy += y_predicted_value == y_true  # 1 if True, 0 otherwise
         print("SUCCESS. Prediction is " + str(y_predicted_value) + "\n")
+        if y_predicted_value == y_true:
+        	small_right += 1
         
         
-    print(f"recording #{n}: current accuracy: {new_accuracy/(n+1):.2f}")
+    print(f"recording #{n}: current accuracy: {new_accuracy/(n+1):.3f}")
 
 accuracy /= float(count)
 
@@ -138,6 +144,9 @@ print("Accuracy {}".format(accuracy))
 print("New accuracy {}".format(new_accuracy))
 
 print("There were : " + str(insucces_count) +  "/" + str(count)  + " errors")
+
+print(f"Partial small accuracy: {small_right/(count-insucces_count)}")
+print(f"Partial big accuracy: {big_right/insucces_count}")
 
 print("average entropy: " + str( entr / count ))
 print(f"communication cost : {COMM_COST/(2**20):.2f} MB")
