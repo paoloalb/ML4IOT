@@ -4,6 +4,8 @@ import base64
 import numpy as np
 from datetime import datetime
 import tensorflow as tf
+import os
+import tensorflow.lite as tflite
 
 from scipy.stats import entropy
 
@@ -153,7 +155,7 @@ generator = SignalGenerator(LABELS, SAMPLING_RATE, **options)
 
 test_ds = generator.make_dataset(test_files, False)
 
-interpreter = tflite.Interpreter('./models/' + filename + '.tflite')
+interpreter = tflite.Interpreter('models/Group7_little.tflite')
 
 interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
@@ -162,7 +164,9 @@ output_details = interpreter.get_output_details()
 accuracy = 0
 count = 0
 
-for x, y_true in test_ds.unbatch().batch(1):
+insucces_count = 0
+
+for n, (x, y_true) in enumerate(test_ds.unbatch().batch(1)):
     interpreter.set_tensor(input_details[0]['index'], x)
     interpreter.invoke()
     y_pred = interpreter.get_tensor(output_details[0]['index'])
@@ -181,7 +185,8 @@ for x, y_true in test_ds.unbatch().batch(1):
 
     if not SuccessChecker_BinEntropy(inference, 0.8):
         print("NO SUCCESS")
-        label, cost = BigRequest(URL, audio_path)
+        insucces_count += 1
+        label, cost = BigRequest(URL, test_files[n])
         print("Prediction is : " + str(label) + "\n")
         if label != "ERROR":
             COMM_COST += cost
@@ -192,6 +197,7 @@ accuracy /= float(count)
 
 print("Accuracy {}".format(accuracy))
 
+print("There were : " + str(insucces_count) + " errors")
 # ##################################################### Main di prova
 #
 # for i in range(30):
