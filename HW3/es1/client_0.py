@@ -185,7 +185,7 @@ for n, (x, y_true) in enumerate(test_ds.unbatch().batch(1)):
 
     inference = y_pred
 
-    entr += entropy(inf_array, base=2)
+    entr += entropy(inference, base=2)
 
     if not SuccessChecker_BinEntropy(inference, 0.8):
         print("NO SUCCESS")
