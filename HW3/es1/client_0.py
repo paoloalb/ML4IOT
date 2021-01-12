@@ -162,6 +162,7 @@ input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
 accuracy = 0
+new_accuracy = 0
 count = 0
 
 insucces_count = 0
@@ -183,6 +184,7 @@ for n, (x, y_true) in enumerate(test_ds.unbatch().batch(1)):
     accuracy += y_predicted_value == y_true  # 1 if True, 0 otherwise
     count += 1
 
+    y_pred = tf.nn.softmax(y_pred)
     inference = y_pred
 
     entr += entropy(inference, base=2)
@@ -192,18 +194,23 @@ for n, (x, y_true) in enumerate(test_ds.unbatch().batch(1)):
         insucces_count += 1
         label, cost = BigRequest(URL, test_files[n])
         print("Prediction is : " + str(label) + "\n")
+        new_accuracy += label == y_true  # 1 if True, 0 otherwise
         if label != "ERROR":
             COMM_COST += cost
     else:
+        new_accuracy += y_predicted_value == y_true  # 1 if True, 0 otherwise
         print("SUCCESS. Prediction is " + str(y_predicted_value) + "\n")
 
 accuracy /= float(count)
 
+new_accuracy /= float(count)
+
 print("Accuracy {}".format(accuracy))
+print("New accuracy {}".format(new_accuracy))
 
-print("There were : " + str(insucces_count) +  "/" + str(len(test_files))  + "errors")
+print("There were : " + str(insucces_count) +  "/" + str(count)  + "errors")
 
-print("average entropy: " + str( entr / len(test_files) ))
+print("average entropy: " + str( entr / count ))
 print("communication cost : " + str(COMM_COST))
 # ##################################################### Main di prova
 #
