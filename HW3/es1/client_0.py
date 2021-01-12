@@ -48,6 +48,18 @@ def BigRequest(url, file_path, generator):
     return sample_label, len(json.dumps(out))
 
 
+#### DATASET DOWNLOAD ############################################################################
+zip_path = tf.keras.utils.get_file(
+	origin="http://storage.googleapis.com/download.tensorflow.org/data/mini_speech_commands.zip",
+	fname="mini_speech_commands.zip",
+	extract=True,
+	cache_dir=".",
+	cache_subdir="data")
+
+data_dir = os.path.join(".", "data", "mini_speech_commands")
+##################################################################################################
+
+
 # Reads test set
 test_files = []
 with open("kws_test_split.txt", "r") as test_file:
@@ -64,7 +76,7 @@ options = STFT_OPTIONS
 
 generator = SignalGenerator(LABELS, SAMPLING_RATE, **options)
 
-test_ds = generator.make_dataset(test_files, False)
+#test_ds = generator.make_dataset(test_files, False)
 
 interpreter = tflite.Interpreter('models/Group7_little.tflite')
 
@@ -80,8 +92,10 @@ insucces_count = 0
 
 entr = 0
 
-for n, (x, y_true) in enumerate(test_ds.unbatch().batch(1)):
-    interpreter.set_tensor(input_details[0]['index'], x)
+for n, path in enumerate(test_files):
+    x, y_true = generator.preprocess_with_stft(path)
+    print(y_true)
+    interpreter.set_tensor(input_details[0]['index'], [x])
     interpreter.invoke()
     y_pred = interpreter.get_tensor(output_details[0]['index'])
 
