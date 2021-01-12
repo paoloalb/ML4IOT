@@ -12,7 +12,7 @@ from scipy.stats import entropy
 SAMPLING_RATE = 16000
 
 COMM_COST = 0
-URL = "http://192.168.1.170:8080"  # url del pc
+URL = "0.0.0.0:8080"  # url del pc
 
 def SuccessChecker_BinEntropy(inf_array, threshold):
     if entropy(inf_array, base=2) <= threshold:
@@ -94,7 +94,7 @@ entr = 0
 
 for n, path in enumerate(test_files):
     x, y_true = generator.preprocess_with_stft(path)
-    print(y_true)
+
     interpreter.set_tensor(input_details[0]['index'], [x])
     interpreter.invoke()
     y_pred = interpreter.get_tensor(output_details[0]['index'])
@@ -122,9 +122,15 @@ for n, path in enumerate(test_files):
         new_accuracy += label == y_true  # 1 if True, 0 otherwise
         if label != "ERROR":
             COMM_COST += cost
+       	
+        print(f"Big model prediction: {label}, true value: {y_true}")	
+       	
     else:
         new_accuracy += y_predicted_value == y_true  # 1 if True, 0 otherwise
         print("SUCCESS. Prediction is " + str(y_predicted_value) + "\n")
+        
+        
+    print(f"recording #{n}: current accuracy: {new_accuracy/(n+1):.2f})
 
 accuracy /= float(count)
 
