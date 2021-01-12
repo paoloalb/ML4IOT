@@ -166,6 +166,8 @@ count = 0
 
 insucces_count = 0
 
+entr = 0
+
 for n, (x, y_true) in enumerate(test_ds.unbatch().batch(1)):
     interpreter.set_tensor(input_details[0]['index'], x)
     interpreter.invoke()
@@ -183,6 +185,8 @@ for n, (x, y_true) in enumerate(test_ds.unbatch().batch(1)):
 
     inference = y_pred
 
+    entr += entropy(inf_array, base=2)
+
     if not SuccessChecker_BinEntropy(inference, 0.8):
         print("NO SUCCESS")
         insucces_count += 1
@@ -197,7 +201,10 @@ accuracy /= float(count)
 
 print("Accuracy {}".format(accuracy))
 
-print("There were : " + str(insucces_count) + " errors")
+print("There were : " + str(insucces_count) +  "/" + str(len(test_files))  + "errors")
+
+print("average entropy: " + str( entr / len(test_files) ))
+print("communication cost : " + str(COMM_COST))
 # ##################################################### Main di prova
 #
 # for i in range(30):
