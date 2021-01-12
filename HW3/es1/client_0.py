@@ -140,6 +140,10 @@ with open("kws_test_split.txt", "r") as test_file:
     for filename in test_file:
         test_files.append(filename[:-1])
 
+f = open("labels.txt", "r")
+LABELS = f.read().split(" ")
+f.close()
+
 generator = SignalGenerator(LABELS, SAMPLING_RATE, **options)
 
 test_ds = generator.make_dataset(test_files, False)
