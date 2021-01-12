@@ -145,6 +145,10 @@ f = open("labels.txt", "r")
 LABELS = f.read().split(" ")
 f.close()
 
+STFT_OPTIONS = {'frame_length': 256, 'frame_step': 128, 'mfcc': False}
+
+options = STFT_OPTIONS
+
 generator = SignalGenerator(LABELS, SAMPLING_RATE, **options)
 
 test_ds = generator.make_dataset(test_files, False)
