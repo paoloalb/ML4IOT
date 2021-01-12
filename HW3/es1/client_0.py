@@ -45,7 +45,7 @@ def BigRequest(url, file_path, generator):
 
     body = r.json()
     sample_label = body["e"]["label"]
-    return sample_label, len(json.dumps(out))
+    return int(sample_label), len(json.dumps(out))
 
 
 #### DATASET DOWNLOAD ############################################################################
@@ -102,8 +102,6 @@ for n, path in enumerate(test_files):
     y_pred = y_pred.squeeze()  # remove batch dim
     y_pred = tf.nn.softmax(y_pred)
 
-    print("output of the little model : " + str(y_pred) + "\n")
-
     y_predicted_value = np.argmax(y_pred)
     y_true = y_true.numpy().squeeze()
 
@@ -114,7 +112,7 @@ for n, path in enumerate(test_files):
 
     entr += entropy(inference, base=2)
 
-    if not SuccessChecker_BinEntropy(inference, 0.8):
+    if not SuccessChecker_FirstSecond(inference, 0.4):
         print("NO SUCCESS")
         insucces_count += 1
         label, cost = BigRequest(URL, test_files[n], generator)
@@ -139,19 +137,8 @@ new_accuracy /= float(count)
 print("Accuracy {}".format(accuracy))
 print("New accuracy {}".format(new_accuracy))
 
-print("There were : " + str(insucces_count) +  "/" + str(count)  + "errors")
+print("There were : " + str(insucces_count) +  "/" + str(count)  + " errors")
 
 print("average entropy: " + str( entr / count ))
-print("communication cost : " + str(COMM_COST))
-# ##################################################### Main di prova
-#
-# for i in range(30):
-#     path = "raw_data/yes1.wav"
-#     inference = np.array([0.5, 0.5])
-#     if not SuccessChecker_BinEntropy(inference, 0.8):
-#         label, cost = BigRequest(URL, path)
-#         print(label)
-#         if label != "ERROR":
-#             COMM_COST += cost
-#
-# print("Communication cost: {}MB".format(np.round(COMM_COST / 1000000), 1))
+print(f"communication cost : {COMM_COST/(2**20):.2f} MB")
+

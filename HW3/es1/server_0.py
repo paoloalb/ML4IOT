@@ -37,9 +37,9 @@ class BigService(object):
 		audio = np.frombuffer(base64.b64decode(dict_obj["e"]["v"]), dtype=np.float32)
 		
 		audio = generator.pad(audio)
-        spectrogram = generator.get_spectrogram(audio)
-        mfccs = generator.get_mfccs(spectrogram)
-        data = tf.expand_dims(mfccs, -1)
+		spectrogram = generator.get_spectrogram(audio)
+		mfccs = generator.get_mfccs(spectrogram)
+		data = tf.expand_dims(mfccs, -1)
 
 		interpreter = tflite.Interpreter('./models/Group7_big.tflite')
 
@@ -47,7 +47,7 @@ class BigService(object):
 		input_details = interpreter.get_input_details()
 		output_details = interpreter.get_output_details()
 
-		interpreter.set_tensor(input_details[0]['index'], data)
+		interpreter.set_tensor(input_details[0]['index'], [data])
 		interpreter.invoke()
 		y_pred = interpreter.get_tensor(output_details[0]['index'])
 
