@@ -91,11 +91,10 @@ class BigService(object):
 		
 		json_obj = cherrypy.request.body.read()
 		dict_obj = json.loads(json_obj)
-		audio = np.frombuffer(base64.b64decode(dict_obj["e"]["v"]), dtype=np.int16)
-
-		resampled = resample(audio, RESAMPLING_RATE)
-		#resampled = tf.cast(resampled, dtype=tf.float32)
-		resampled = pad(resampled)
+		audio = np.frombuffer(base64.b64decode(dict_obj["e"]["v"]), dtype=np.float32)
+		#resampled = resample(audio, RESAMPLING_RATE)
+		#resampled = tf.cast(audio, dtype=tf.float32)
+		resampled = pad(audio)
 		frame_length = int(0.040 * RESAMPLING_RATE)
 		frame_step = int(0.020 * RESAMPLING_RATE)
 		data = preprocess_with_mfcc(resampled, frame_length, frame_step)
