@@ -37,7 +37,8 @@ def BigRequest(url, file_path, generator):
 
     json_audio = {"n": "audio", "u": "", "t": timestamp, "v": encoded_audio}
     out = {"bn": "little_service", "e": json_audio}
-
+    
+    
     try:
         r = requests.post(url=url, json=out)
     except requests.exceptions.RequestException as err:
@@ -112,14 +113,13 @@ for n, path in enumerate(test_files):
 
     entr += entropy(inference, base=2)
 
-    if not SuccessChecker_FirstSecond(inference, 0.4):
+    if not SuccessChecker_FirstSecond(inference, 0.2):
         print("NO SUCCESS")
         insucces_count += 1
         label, cost = BigRequest(URL, test_files[n], generator)
-        print("Prediction is : " + str(label) + "\n")
+        #print("Prediction is : " + str(label) + "\n")
         new_accuracy += label == y_true  # 1 if True, 0 otherwise
-        if label != "ERROR":
-            COMM_COST += cost
+        COMM_COST += cost
        	
         print(f"Big model prediction: {label}, true value: {y_true}")	
        	
