@@ -167,11 +167,15 @@ for x, y_true in test_ds.unbatch().batch(1):
     count += 1
 
     inference = y_pred
+
     if not SuccessChecker_BinEntropy(inference, 0.8):
+        print("NO SUCCESS")
         label, cost = BigRequest(URL, audio_path)
-        print(label)
+        print("Prediction is : " + str(label) + "\n")
         if label != "ERROR":
             COMM_COST += cost
+    else:
+        print("SUCCESS. Prediction is " + str(y_predicted_value) + "\n")
 
 accuracy /= float(count)
 
