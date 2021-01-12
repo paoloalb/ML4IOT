@@ -140,6 +140,8 @@ with open("kws_test_split.txt", "r") as test_file:
     for filename in test_file:
         test_files.append(filename[:-1])
 
+generator = SignalGenerator(LABELS, SAMPLING_RATE, **options)
+
 test_ds = generator.make_dataset(test_files, False)
 
 interpreter = tflite.Interpreter('./models/' + filename + '.tflite')
