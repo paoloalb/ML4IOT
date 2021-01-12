@@ -36,7 +36,10 @@ class BigService(object):
 		dict_obj = json.loads(json_obj)
 		audio = np.frombuffer(base64.b64decode(dict_obj["e"]["v"]), dtype=np.float32)
 		
-		data = preprocess_with_mfcc(audio)
+		audio = generator.pad(audio)
+        spectrogram = generator.get_spectrogram(audio)
+        mfccs = generator.get_mfccs(spectrogram)
+        data = tf.expand_dims(mfccs, -1)
 
 		interpreter = tflite.Interpreter('./models/Group7_big.tflite')
 

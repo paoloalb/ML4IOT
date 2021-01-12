@@ -12,7 +12,7 @@ from scipy.stats import entropy
 SAMPLING_RATE = 16000
 
 COMM_COST = 0
-URL = "0.0.0.0:8080"  # url del pc
+URL = "192.168.1.170:8080"  # url del pc
 
 def SuccessChecker_BinEntropy(inf_array, threshold):
     if entropy(inf_array, base=2) <= threshold:
@@ -130,7 +130,7 @@ for n, path in enumerate(test_files):
         print("SUCCESS. Prediction is " + str(y_predicted_value) + "\n")
         
         
-    print(f"recording #{n}: current accuracy: {new_accuracy/(n+1):.2f})
+    print(f"recording #{n}: current accuracy: {new_accuracy/(n+1):.2f}")
 
 accuracy /= float(count)
 
