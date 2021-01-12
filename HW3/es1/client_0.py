@@ -12,7 +12,7 @@ from scipy.stats import entropy
 SAMPLING_RATE = 16000
 
 COMM_COST = 0
-URL = "192.168.1.170:8080"  # url del pc
+URL = "http://0.0.0.0:8080"  # url del pc
 
 def SuccessChecker_BinEntropy(inf_array, threshold):
     if entropy(inf_array, base=2) <= threshold:
