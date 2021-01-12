@@ -121,7 +121,7 @@ def BigRequest(url, file_path):
     wav = tf.io.read_file(file_path).numpy()
     encoded_audio = base64.b64encode(wav).decode()
 
-    json_audio = {"n": "audio", "u": "pi", "t": timestamp, "v": encoded_audio}
+    json_audio = {"n": "audio", "u": "", "t": timestamp, "v": encoded_audio}
     out = {"bn": "little_service", "e": json_audio}
 
     try:
