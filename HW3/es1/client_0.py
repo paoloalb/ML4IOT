@@ -7,6 +7,7 @@ import tensorflow as tf
 
 from scipy.stats import entropy
 
+SAMPLING_RATE = 16000
 
 #### SIGNAL GENERATOR CLASS ######################################################################
 class SignalGenerator:
