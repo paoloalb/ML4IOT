@@ -15,6 +15,7 @@ COMM_COST = 0
 URL = "http://0.0.0.0:8080"  # url del pc
 
 def SuccessChecker_BinEntropy(inf_array, threshold):
+    print("Entropy: " + str(entropy(inf_array, base=2)))
     if entropy(inf_array, base=2) <= threshold:
         return True
     else:

@@ -137,10 +137,6 @@ def bigtraining():
         keras.layers.Conv2D(filters=512, kernel_size=[1, 1], strides=[1, 1], use_bias=False),
         keras.layers.BatchNormalization(momentum=0.1),
         keras.layers.ReLU(),
-        keras.layers.DepthwiseConv2D(kernel_size=[3, 3], strides=[1, 1], use_bias=False),
-        keras.layers.Conv2D(filters=256, kernel_size=[1, 1], strides=[1, 1], use_bias=False),
-        keras.layers.BatchNormalization(momentum=0.1),
-        keras.layers.ReLU(),
         keras.layers.GlobalAveragePooling2D(),
         keras.layers.Dense(units=32),
         keras.layers.Dense(units=len(LABELS))
