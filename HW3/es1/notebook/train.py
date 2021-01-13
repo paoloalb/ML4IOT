@@ -12,14 +12,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--version",
                     type=str,
                     # required=True,
-                    default="little",  # togliere il default alla consegna
+                    default="big",  # togliere il default alla consegna
                     help="Version of the model (big or little)")
 
 args = parser.parse_args()
 
 assert args.version in ["big", "little"], "Error: parameter version is not correct"
-
-
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Do not print info and warning messages
 os.environ["CUDA_VISIBLE_DEVICES"] = ""  # ignore GPU devices
@@ -47,7 +45,7 @@ with open("kws_val_split.txt", "r") as val_file:
     for filename in val_file:
         val_files.append(filename[:-1])
 
-with open("kws_test_split.txt", "r") as test_file:
+with open("kws_test_split.txt", "r")     as test_file:
     for filename in test_file:
         test_files.append(filename[:-1])
 
@@ -59,22 +57,39 @@ f = open("labels.txt", "r")
 LABELS = f.read().split(" ")
 f.close()
 
+
 ### LEARNING RATE SCHEDULER ##########################################################
-def scheduler(epoch, lr):
-        if epoch == 20:
-            return lr/10
-            
-        elif epoch == 25:
-        	return lr/2
-        	
-        else:
-            return lr
+def small_scheduler(epoch, lr):
+    if epoch == 20:
+        return lr / 10
+
+    elif epoch == 25:
+        return lr / 2
+
+    else:
+        return lr
+
+
+### LEARNING RATE SCHEDULER ##########################################################
+def big_scheduler(epoch, lr):
+    if epoch > 25:
+        return lr / 2
+
+    elif epoch > 20:
+        return lr / 10
+
+    else:
+        return lr
+
+
 ######################################################################################
 
+
 def bigtraining():
-    EPOCHS = 20
+    EPOCHS = 35
     LEARNING_RATE = 0.01
     SAMPLING_RATE = 16000
+
     options = {'frame_length': 640, 'frame_step': 320, 'mfcc': True,
                'lower_frequency': 20, 'upper_frequency': 4000, 'num_mel_bins': 40,
                'num_coefficients': 10}
@@ -85,19 +100,49 @@ def bigtraining():
     val_ds = generator.make_dataset(val_files, False)
     test_ds = generator.make_dataset(test_files, False)
 
-    # CNN:
+    #
+    # # CNN:
+    # model = keras.Sequential([
+    #     keras.layers.Conv2D(input_shape=input_shape, filters=int(128), kernel_size=[3, 3], strides=strides,
+    #                         use_bias=False),
+    #     keras.layers.BatchNormalization(momentum=0.1),
+    #     keras.layers.ReLU(),
+    #     keras.layers.Conv2D(filters=int(128), kernel_size=[3, 3], strides=[1, 1], use_bias=False),
+    #     keras.layers.BatchNormalization(momentum=0.1),
+    #     keras.layers.ReLU(),
+    #     keras.layers.Conv2D(filters=int(128), kernel_size=[3, 3], strides=[1, 1], use_bias=False),
+    #     keras.layers.BatchNormalization(momentum=0.1),
+    #     keras.layers.ReLU(),
+    #     keras.layers.Conv2D(filters=int(128), kernel_size=[3, 3], strides=[1, 1], use_bias=False),
+    #     keras.layers.BatchNormalization(momentum=0.1),
+    #     keras.layers.ReLU(),
+    #     keras.layers.GlobalAveragePooling2D(),
+    #     keras.layers.Dense(units=32),
+    #     keras.layers.Dense(units=len(LABELS))
+    # ])
+
+    # DS-CNN
     model = keras.Sequential([
-        keras.layers.Conv2D(input_shape=input_shape, filters=int(128), kernel_size=[3, 3], strides=strides,
+        keras.layers.Conv2D(input_shape=input_shape, filters=512, kernel_size=[3, 3], strides=strides,
                             use_bias=False),
         keras.layers.BatchNormalization(momentum=0.1),
+        keras.layers.Dropout(0.05),
         keras.layers.ReLU(),
-        keras.layers.Conv2D(filters=int(128), kernel_size=[3, 3], strides=[1, 1], use_bias=False),
+        keras.layers.DepthwiseConv2D(kernel_size=[3, 3], strides=[1, 1], use_bias=False),
+        keras.layers.Conv2D(filters=512, kernel_size=[1, 1], strides=[1, 1], use_bias=False),
+        keras.layers.BatchNormalization(momentum=0.1),
+        keras.layers.Dropout(0.05),
+        keras.layers.ReLU(),
+        keras.layers.DepthwiseConv2D(kernel_size=[3, 3], strides=[1, 1], use_bias=False),
+        keras.layers.Conv2D(filters=512, kernel_size=[1, 1], strides=[1, 1], use_bias=False),
         keras.layers.BatchNormalization(momentum=0.1),
         keras.layers.ReLU(),
-        keras.layers.Conv2D(filters=int(128), kernel_size=[3, 3], strides=[1, 1], use_bias=False),
+        keras.layers.DepthwiseConv2D(kernel_size=[3, 3], strides=[1, 1], use_bias=False),
+        keras.layers.Conv2D(filters=256, kernel_size=[1, 1], strides=[1, 1], use_bias=False),
         keras.layers.BatchNormalization(momentum=0.1),
         keras.layers.ReLU(),
         keras.layers.GlobalAveragePooling2D(),
+        keras.layers.Dense(units=32),
         keras.layers.Dense(units=len(LABELS))
     ])
 
@@ -114,6 +159,7 @@ def bigtraining():
         save_freq='epoch',
     )
     callbacks = [checkpoint]
+    callbacks.append(tf.keras.callbacks.LearningRateScheduler(schedule=big_scheduler))
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE)
 
@@ -173,13 +219,12 @@ def bigtraining():
 def littletraining():
     EPOCHS = 35
     LEARNING_RATE = 0.01
-    STRUCTURED_W = 0.3# alpha
+    STRUCTURED_W = 0.3  # alpha
     MAGNITUDE_FS = 0.55  # final sparsity
 
     STFT_OPTIONS = {'frame_length': 256, 'frame_step': 128, 'mfcc': False}
 
     SAMPLING_RATE = 16000
-
 
     options = STFT_OPTIONS
     strides = [2, 2]
@@ -190,29 +235,28 @@ def littletraining():
     val_ds = generator.make_dataset(val_files, False)
     test_ds = generator.make_dataset(test_files, False)
 
-
     ALPHA = STRUCTURED_W
-
 
     # DS-CNN
     model = keras.Sequential([
-		keras.layers.Conv2D(input_shape=input_shape, filters=int(256*ALPHA), kernel_size=[3, 3], strides=strides, use_bias=False),
-		keras.layers.BatchNormalization(momentum=0.1),
-		keras.layers.Dropout(0.05),
-		keras.layers.ReLU(),
-		keras.layers.DepthwiseConv2D(kernel_size=[3, 3], strides=[1, 1], use_bias=False),
-		keras.layers.Conv2D(filters=int(256*ALPHA), kernel_size=[1, 1], strides=[1, 1], use_bias=False),
-		keras.layers.BatchNormalization(momentum=0.1),
-		keras.layers.Dropout(0.05),
-		keras.layers.ReLU(),
-		keras.layers.DepthwiseConv2D(kernel_size=[3, 3], strides=[1, 1], use_bias=False),
-		keras.layers.Conv2D(filters=int(256*ALPHA), kernel_size=[1, 1], strides=[1, 1], use_bias=False),
-		keras.layers.BatchNormalization(momentum=0.1),
-		keras.layers.ReLU(),
-		keras.layers.GlobalAveragePooling2D(),
-		keras.layers.Dense(units=32),
-		keras.layers.Dense(units=len(LABELS))	
-	])
+        keras.layers.Conv2D(input_shape=input_shape, filters=int(256 * ALPHA), kernel_size=[3, 3], strides=strides,
+                            use_bias=False),
+        keras.layers.BatchNormalization(momentum=0.1),
+        keras.layers.Dropout(0.05),
+        keras.layers.ReLU(),
+        keras.layers.DepthwiseConv2D(kernel_size=[3, 3], strides=[1, 1], use_bias=False),
+        keras.layers.Conv2D(filters=int(256 * ALPHA), kernel_size=[1, 1], strides=[1, 1], use_bias=False),
+        keras.layers.BatchNormalization(momentum=0.1),
+        keras.layers.Dropout(0.05),
+        keras.layers.ReLU(),
+        keras.layers.DepthwiseConv2D(kernel_size=[3, 3], strides=[1, 1], use_bias=False),
+        keras.layers.Conv2D(filters=int(256 * ALPHA), kernel_size=[1, 1], strides=[1, 1], use_bias=False),
+        keras.layers.BatchNormalization(momentum=0.1),
+        keras.layers.ReLU(),
+        keras.layers.GlobalAveragePooling2D(),
+        keras.layers.Dense(units=32),
+        keras.layers.Dense(units=len(LABELS))
+    ])
 
     # filepath_base = f"./models/{args.version}"
     filename = f"Group7_{args.version}"
@@ -240,7 +284,7 @@ def littletraining():
     }
 
     callbacks.append(tfmot.sparsity.keras.UpdatePruningStep())
-    callbacks.append(tf.keras.callbacks.LearningRateScheduler(schedule=scheduler))
+    callbacks.append(tf.keras.callbacks.LearningRateScheduler(schedule=small_scheduler))
 
     prune_low_magnitude = tfmot.sparsity.keras.prune_low_magnitude
     model = prune_low_magnitude(model, **pruning_params)
@@ -312,17 +356,8 @@ def littletraining():
     print("Accuracy {}".format(accuracy))
     ##################################################################################################
 
-    print(
-        "epochs: " + str(EPOCHS) +
-        "\nlearning rate: " + str(LEARNING_RATE) +
-        "\nalpha: " + str(STRUCTURED_W) +
-        "\nMAGNITUDE_FS: " + str(MAGNITUDE_FS)
-    )
-
 
 if args.version == "big":
     bigtraining()
 else:
     littletraining()
-
-
