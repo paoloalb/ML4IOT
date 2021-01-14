@@ -9,6 +9,7 @@ import tensorflow.lite as tflite
 from SignalGenerator import SignalGenerator
 from scipy.stats import entropy
 os.environ["CUDA_VISIBLE_DEVICES"] = "" 					# ignore GPU devices
+import time
 
 SAMPLING_RATE = 16000
 
@@ -107,13 +108,23 @@ entr = 0
 
 big_right, small_right = 0, 0
 
+total_time, inference_time = 0, 0
+
 for n, path in enumerate(test_files):
-    x, y_true = generator.preprocess_with_stft(path)
+	
+    x, y_true, pr_time = generator.preprocess_with_stft(path)
 
     interpreter.set_tensor(input_details[0]['index'], [x])
+    
+    start_inf = time.time()
     interpreter.invoke()
     y_pred = interpreter.get_tensor(output_details[0]['index'])
-
+    end = time.time()
+    
+    inference_time += end-start_inf
+    total_time += end-start_inf+pr_time
+	
+	
     y_pred = y_pred.squeeze()  # remove batch dim
     y_pred = tf.nn.softmax(y_pred)
 
@@ -164,4 +175,9 @@ print(f"Partial big accuracy: {big_right/insucces_count}")
 
 print("average entropy: " + str( entr / count ))
 print(f"communication cost : {COMM_COST/(2**20):.2f} MB")
+
+print(f"Average total time : {total_time*1000/count:.2f} ms")
+print(f"Average inference time : {inference_time*1000/count:.2f} ms")
+
+
 

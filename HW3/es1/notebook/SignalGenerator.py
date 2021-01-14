@@ -1,5 +1,7 @@
 import tensorflow as tf
 import os
+import time 
+
 #### SIGNAL GENERATOR CLASS ######################################################################
 class SignalGenerator:
     def __init__(self, labels, sampling_rate, frame_length, frame_step,
@@ -58,12 +60,13 @@ class SignalGenerator:
 
     def preprocess_with_stft(self, file_path):
         audio, label = self.read(file_path)
+        tic = time.time()
         audio = self.pad(audio)
         spectrogram = self.get_spectrogram(audio)
         spectrogram = tf.expand_dims(spectrogram, -1)
         spectrogram = tf.image.resize(spectrogram, [32, 32])
 
-        return spectrogram, label
+        return spectrogram, label, time.time()-tic
 
     def preprocess_with_mfcc(self, file_path):
         audio, label = self.read(file_path)
