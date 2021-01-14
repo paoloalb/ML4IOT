@@ -8,11 +8,19 @@ import os
 import tensorflow.lite as tflite
 from SignalGenerator import SignalGenerator
 from scipy.stats import entropy
+os.environ["CUDA_VISIBLE_DEVICES"] = "" 					# ignore GPU devices
 
 SAMPLING_RATE = 16000
 
 COMM_COST = 0
 URL = "http://0.0.0.0:8080"  # url del pc
+
+
+def float32_to_int16(array):
+	array = array*32768
+	array = np.asarray(array, dtype=np.int16)
+	return array
+
 
 def SuccessChecker_BinEntropy(inf_array, threshold):
     print("Entropy: " + str(entropy(inf_array, base=2)))
@@ -32,8 +40,11 @@ def SuccessChecker_FirstSecond(inf_array, threshold):
 def BigRequest(url, file_path, generator):
     dateTimeObj = datetime.now()
     timestamp = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
-
+	
     wav, _ = generator.read(file_path)
+    
+    wav = float32_to_int16(wav.numpy())
+    
     encoded_audio = base64.b64encode(wav).decode()
 
     json_audio = {"n": "audio", "u": "", "t": timestamp, "v": encoded_audio}
@@ -116,7 +127,7 @@ for n, path in enumerate(test_files):
 
     entr += entropy(inference, base=2)
 
-    if not SuccessChecker_FirstSecond(inference, 0.25):
+    if not SuccessChecker_FirstSecond(inference, 0.57):
         print("NO SUCCESS")
         insucces_count += 1
         label, cost = BigRequest(URL, test_files[n], generator)
@@ -133,9 +144,11 @@ for n, path in enumerate(test_files):
         print("SUCCESS. Prediction is " + str(y_predicted_value) + "\n")
         if y_predicted_value == y_true:
         	small_right += 1
+        else:
+        	print(f"MISTAKE!: Predictions: {y_pred}")
         
         
-    print(f"recording #{n}: current accuracy: {new_accuracy/(n+1):.3f}")
+    print(f"recording #{n}: current accuracy: {new_accuracy/(n+1):.4f}")
 
 accuracy /= float(count)
 

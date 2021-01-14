@@ -9,6 +9,7 @@ import base64
 import tensorflow.lite as tflite
 import tensorflow as tf
 from SignalGenerator import SignalGenerator
+os.environ["CUDA_VISIBLE_DEVICES"] = "" 					# ignore GPU devices
 
 SAMPLING_RATE = 16000
 
@@ -22,6 +23,11 @@ LABELS = f.read().split(" ")
         
 generator = SignalGenerator(LABELS, SAMPLING_RATE, **MFCC_OPTIONS)
 
+def int16_to_float32(array):
+	array = array/32768
+	array = np.asarray(array, dtype=np.float32)
+	return array
+
 
 class BigService(object): 
 	exposed= True
@@ -34,7 +40,9 @@ class BigService(object):
 		
 		json_obj = cherrypy.request.body.read()
 		dict_obj = json.loads(json_obj)
-		audio = np.frombuffer(base64.b64decode(dict_obj["e"]["v"]), dtype=np.float32)
+		audio = np.frombuffer(base64.b64decode(dict_obj["e"]["v"]), dtype=np.int16)
+		
+		audio = int16_to_float32(audio)
 		
 		audio = generator.pad(audio)
 		spectrogram = generator.get_spectrogram(audio)
