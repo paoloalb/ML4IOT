@@ -1,6 +1,6 @@
-75784
-Model: CNN-1
+39432
+Model: DS-CNN-1
 epochs: 20
 lr: 0.01
-Final size: 303280
-Testset accuracy: 0.93125
+Final size: 156124
+Testset accuracy: 0.925

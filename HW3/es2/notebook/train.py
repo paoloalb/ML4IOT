@@ -17,8 +17,9 @@ N = 4
 #### PARSING INPUT PARAMETERS ####################################################################
 parser = argparse.ArgumentParser()
 parser.add_argument("--version", type=int, required=True)
-
+parser.add_argument("--qos", type=int, required=False, default=2)
 args = parser.parse_args()
+QOS = args.qos
 
 if args.version == 0:
 	MODEL = "CNN-0"

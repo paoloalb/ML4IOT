@@ -11,6 +11,7 @@ import zipfile
 import numpy as np
 
 import tensorflow as tf
+import argparse
 
 
 ######### DEFINE MQTT CONNECTION PARAMETERS #################################################################################
@@ -39,32 +40,21 @@ class myHandler(MQTT_Handler):
 			predictions.append(list(logits))
 #############################################################################################################################
 
-'''			
-def download_dataset(url):
-	print("Downloading the dataset")
-	r = requests.get(url)
-	open("mini_speech_commands.zip", 'wb').write(r.content)
-	
-	print("Unzipping the dataset")
-	with zipfile.ZipFile("mini_speech_commands.zip", "r") as zip_ref:
-		zip_ref.extractall("data")
-		
-	print("Removing zip file")
-	os.remove("mini_speech_commands.zip")
-'''			
+#### PARSING INPUT PARAMETERS ####################################################################
+parser = argparse.ArgumentParser()
+parser.add_argument("--qos", type=int, required=False, default=2)
+
+args = parser.parse_args()	
+QOS = args.qos
 	
 ######## START MQTT CLIENT ##################################################################################################		
 handler = myHandler(clientID)						# init the handler
 handler.run()										# start the MQTT client
-handler.myMqttClient.mySubscribe(preds_topic)		# subscribe to predictions topic
+handler.myMqttClient.mySubscribe(preds_topic, QOS)	# subscribe to predictions topic
 #############################################################################################################################
 
 
 ######## DOWNLOAD DATASET ###################################################################################################
-'''
-if not os.path.exists("./data"):
-	download_dataset("http://storage.googleapis.com/download.tensorflow.org/data/mini_speech_commands.zip")
-'''
 zip_path = tf.keras.utils.get_file(
 	origin="http://storage.googleapis.com/download.tensorflow.org/data/mini_speech_commands.zip",
 	fname="mini_speech_commands.zip",
@@ -113,7 +103,7 @@ for x, y_true in test_ds.unbatch().batch(1):
 	audio = {"n": "audio", "t":int(time.time()), "vd": encoded_audio}
 	message = {"bn": "cooperative_client", "record_id":count, "e": [audio]}
 	
-	handler.myMqttClient.myPublish(recording_topic, json.dumps(message))		# publish the message on the recording topic
+	handler.myMqttClient.myPublish(recording_topic, json.dumps(message), QOS)		# publish the message on the recording topic
 	
 	# wait until all the client had answered with their prediction	
 	while len(predictions)!=N:
@@ -133,7 +123,7 @@ for x, y_true in test_ds.unbatch().batch(1):
 	print(f"Accuracy: {correct/count:.4f}")		# logging
 	predictions = []							# after each sample, reset the prediction list
 #############################################################################################################################
-print(f"Accuracy: {correct/count:.2f}")
+print(f"Accuracy: {correct/count:.4f}")
 
 handler.end()		# terminate MQTT client
 			

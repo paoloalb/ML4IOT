@@ -11,7 +11,10 @@ import time
 #### PARSING INPUT PARAMETERS ####################################################################
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, required=True)
+parser.add_argument("--qos", type=int, required=False, default=2)
+
 args = parser.parse_args()
+QOS = args.qos
 ##################################################################################################
 
 
@@ -63,14 +66,14 @@ class myHandler(MQTT_Handler):
 			# logging
 			print(f"client_{args.model.split('/')[-1]}: Responding to {data['bn']} with the inference of record {data['record_id']}")
 			
-			handler.myMqttClient.myPublish(preds_topic, json.dumps(message))	# publish message on predictions topic
+			handler.myMqttClient.myPublish(preds_topic, json.dumps(message), QOS)	# publish message on predictions topic
 ##################################################################################################
 
 
 ######## START MQTT CLIENT #######################################################################		
 handler = myHandler(clientID)						    # init the handler
 handler.run()										    # start the MQTT client
-handler.myMqttClient.mySubscribe(recording_topic)		# subscribe to recording topic
+handler.myMqttClient.mySubscribe(recording_topic, QOS)		# subscribe to recording topic
 ##################################################################################################
 
 while True:

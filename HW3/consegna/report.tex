@@ -61,17 +61,36 @@ Student ID: s278176\\
 %Int16 invece di float32 perché codifichi meno byte. non inficia l'accuracy e ci ha permesso di ridurre il  costo nei limiti richiesti (quasi dimezzato costo)
 
 \section{Cooperative Inference}
-%giustificare uso di subscriber-publisher per via della presenza di n modelli
-% mettete quality of service 0 per velicizzare (di default è 2)
+For the cooperative inference, the chosen number of models is 4.\\
+The communication is performed through MQTT, considering that it is relatively easy to publish the recording once for all the, possibly many, models with respect to create a web service for each of them.\\
+We managed to keep the number of models as low as possible while preserving accuracy.
+As expected all the models have an individual accuracy that is lower than the cooperative final accuracy that is 95.13\% .\\
+Two of them are derived from the proposed DS-CNN, while the remaining two are derived from the proposed CNN, with some modification on the BatchNorm layer and filters and biases of the Conv2D.\\
+To tackle the big amount of time needed to complete the 800 inferences, during testing the quality of service has been lowered to 0,
+avoiding the four-step handshake that was time consuming. To ensure the correct communication in the final commit of the homework the
+QOS is again 2 (but using the optional parameter \verb#qos# on both \verb#inference_client.py# and \verb#cooperative_client# is possible to change it)\\
+The cooperative policy consists of averaging the logits (output of the last layer of the models) and taking the argmax of them.
 
+\vspace{0.2cm}
 
-% 4 modelli 2 cnn e 2 dscnn 
+\begin{center}
+\begin{tabular}{ |c|p{6cm}|c|c|c|c|c|c| } 
+\hline
+\vspace{-0.09cm}
 
-% TABELLA DA RIEMPIRE 
+\textbf{Model} &\textbf{Modification w.r.t. proposed models} &\textbf{Epochs}&\textbf{lr} &\textbf{Test set accuracy}\\
+\hline
+CNN-0&-&20&0.01&94.25\\
+CNN-1&Conv2D(filters=64, bias=True), BatchNormalization(momentum=0.2)&20&0.01&93.125\\
+DS-CNN-0&-&20&0.01&93.625\\ 
+DS-CNN-1&Conv2D(filters=128, bias=True), BatchNormalization(momentum=0.2)&20&0.01&92.50\\
+Cooperative inference &&&&\textbf{95.13} \\
+\hline
 
-% per predizione finale mediamo i logits che escono dalla rete e facciamo argmax
+\end{tabular}
+\captionof{table}{Models used for the cooperative inference} 
 
-% accuracy finale 95.125
+\end{center}
 
 
 \end{document}
