@@ -41,6 +41,7 @@ class BigService(object):
 		json_obj = cherrypy.request.body.read()
 		dict_obj = json.loads(json_obj)
 		audio = np.frombuffer(base64.b64decode(dict_obj["e"]["v"]), dtype=np.int16)
+		#audio = np.frombuffer(base64.b85decode(dict_obj["e"]["v"]), dtype=np.int16)
 		
 		audio = int16_to_float32(audio)
 		

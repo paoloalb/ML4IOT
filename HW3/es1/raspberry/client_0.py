@@ -47,6 +47,7 @@ def BigRequest(url, file_path, generator):
     wav = float32_to_int16(wav.numpy())
     
     encoded_audio = base64.b64encode(wav).decode()
+    #encoded_audio = base64.b85encode(wav).decode()
 
     json_audio = {"n": "audio", "u": "", "t": timestamp, "v": encoded_audio}
     out = {"bn": "little_service", "e": json_audio}
@@ -138,7 +139,7 @@ for n, path in enumerate(test_files):
 
     entr += entropy(inference, base=2)
 
-    if not SuccessChecker_FirstSecond(inference, 0.57):
+    if not SuccessChecker_FirstSecond(inference, 0.59):
         print("NO SUCCESS")
         insucces_count += 1
         label, cost = BigRequest(URL, test_files[n], generator)
