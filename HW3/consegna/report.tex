@@ -3,7 +3,7 @@
 \usepackage[english]{babel}
 \usepackage[document]{ragged2e}
 \usepackage{todonotes}
-\usepackage[a4paper, total={6.2in, 11in}]{geometry}
+\usepackage[a4paper, total={6.2in, 13in}]{geometry}
 \usepackage{subcaption}
 \usepackage{graphicx}
 \usepackage{grffile}
@@ -31,7 +31,7 @@ Student ID: s278176\\
 \justifying
 
 \title{
-    \vspace{0.8cm}
+    \vspace{0.4cm}
     
     Machine Learning for IoT - 
     Politecnico di Torino\\
@@ -46,7 +46,6 @@ Student ID: s278176\\
 
 
 \section{Big/Little Inference}
-%spiegare che abbiamo scelto rest perchè è la cosa + logica con client-server
 For the big/little inference, we chose to use perform it with the use of REST, since it was the best choice when working with a single client and a server.
 When training the big model we used MFCC to maximize the accuracy, while we switched to STFT in the little one, in order to reduce significantly the inference time.
 \\
@@ -54,10 +53,26 @@ For both networks, we decided to use a DS-CNN model, increasing the number of co
 We also implemented learning rate policies for both the networks during training.\\\\
 We tried different success checker policies, like a treshold on the entropy of the probabilities array. We finally settled on the first-second policy, where we used the difference between first and second biggest probabilities coming from the network prediction layer.
 \\\\
-Whenn it comes to communication cost, we managed to reduce it a lot by switching from Float32 to Int16 when sending the data to the server. This did not impact the resulting accuracy, while reducing the 
-%TABELLA CON RISULTATI PER I 2 MODELLI e hyperparameters
+When it comes to the communication cost, we managed to reduce it a lot by switching from Float32 to Int16 when sending the data to the server. This did not impact the resulting accuracy, while reducing the cost of communication by a significant margin and allowing us to call the server for a prediction 113 times, resulting in a comunnication cost of about 4.47 MB and a final accuracy of 93.12 \%.
+\vspace{0.2cm}
 
-%Int16 invece di float32 perché codifichi meno byte. non inficia l'accuracy e ci ha permesso di ridurre il  costo nei limiti richiesti (quasi dimezzato costo)
+\begin{center}
+\begin{tabular}{ |c|c|c|c|c|c|c|c| } 
+\hline
+\vspace{-0.09cm}
+
+\textbf{Model} &\textbf{Size} &\textbf{Compressed} &\textbf{Epochs}&\textbf{MFCC} &\textbf{Total}&\textbf{Test set}\\
+\textbf{} &\textbf{} &\textbf{size} &\textbf{}&\textbf{}&\textbf{latency} &\textbf{accuracy}\\
+\hline
+Big   & 20 & & & YES & & 95.12\%\\
+Little& 20 & & & NO  & & 90.62\%\\
+\hline
+
+\end{tabular}
+\captionof{table}{Models used for the big/little inference} 
+
+\end{center}
+
 
 \section{Cooperative Inference}
 For the cooperative inference, the chosen number of models is 4.\\
@@ -73,13 +88,13 @@ The cooperative policy consists of averaging the logits (output of the last laye
 \vspace{0.2cm}
 
 \begin{center}
-\begin{tabular}{ |c|p{6cm}|c|c|c|c|c|c| } 
+\begin{tabular}{ |c|p{6cm}|c|c|c|c|c|c	|c| } 
 \hline
 \vspace{-0.09cm}
 
 \textbf{Model} &\textbf{Modification w.r.t. proposed models} &\textbf{Epochs}&\textbf{lr} &\textbf{Test set accuracy}\\
 \hline
-CNN-0&-&20&0.01&94.25\\
+CNN-0 &-& 20 & 0.01 & 94.25\\
 CNN-1&Conv2D(filters=64, bias=True), BatchNormalization(momentum=0.2)&20&0.01&93.125\\
 DS-CNN-0&-&20&0.01&93.625\\ 
 DS-CNN-1&Conv2D(filters=128, bias=True), BatchNormalization(momentum=0.2)&20&0.01&92.50\\
