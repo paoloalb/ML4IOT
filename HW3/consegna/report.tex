@@ -3,7 +3,7 @@
 \usepackage[english]{babel}
 \usepackage[document]{ragged2e}
 \usepackage{todonotes}
-\usepackage[a4paper, total={6.2in, 13in}]{geometry}
+\usepackage[a4paper, total={7in, 12in}]{geometry}
 \usepackage{subcaption}
 \usepackage{graphicx}
 \usepackage{grffile}
@@ -88,19 +88,25 @@ The cooperative policy consists of averaging the logits (output of the last laye
 \vspace{0.2cm}
 
 \begin{center}
-\begin{tabular}{ |c|p{6cm}|c|c|c|c|c|c	|c| } 
+\begin{tabular}{ |c|c|c|c|c|c|c|c|c| } 
 \hline
 \vspace{-0.09cm}
 
-\textbf{Model} &\textbf{Modification w.r.t. proposed models} &\textbf{Epochs}&\textbf{lr} &\textbf{Test set accuracy}\\
+\textbf{Model} &\textbf{Modification w.r.t.} &\textbf{Epochs}&\textbf{lr} &\textbf{Test set accuracy}\\
+\textbf{} &\textbf{proposed models} &\textbf{}&\textbf{} &\textbf{}\\
 \hline
 CNN-0 &-& 20 & 0.01 & 94.25\\
-CNN-1&Conv2D(filters=64, bias=True), BatchNormalization(momentum=0.2)&20&0.01&93.125\\
-DS-CNN-0&-&20&0.01&93.625\\ 
-DS-CNN-1&Conv2D(filters=128, bias=True), BatchNormalization(momentum=0.2)&20&0.01&92.50\\
+\hline
+CNN-1&Conv2D(filters=64, bias=True),&20&0.01&93.125\\
+&BatchNormalization(momentum=0.2)&&&\\
+\hline
+DS-CNN-0&-&20&0.01&93.625\\
+\hline
+DS-CNN-1&Conv2D(filters=128, bias=True),&20&0.01&92.50\\
+& BatchNormalization(momentum=0.2)&&&\\
+\hline\hline
 Cooperative inference &&&&\textbf{95.13} \\
 \hline
-
 \end{tabular}
 \captionof{table}{Models used for the cooperative inference} 
 
