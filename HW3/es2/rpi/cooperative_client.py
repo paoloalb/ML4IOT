@@ -105,9 +105,17 @@ for x, y_true in test_ds.unbatch().batch(1):
 	
 	handler.myMqttClient.myPublish(recording_topic, json.dumps(message), QOS)		# publish the message on the recording topic
 	
+	timeout_count = 0
 	# wait until all the client had answered with their prediction	
 	while len(predictions)!=N:
-		time.sleep(0.001)
+		time.sleep(0.01)
+		timeout_count += 1
+		
+		if timeout_count == (2//0.01):     # two second timeout
+			timeout_count = 0
+			predictions = []
+			handler.myMqttClient.myPublish(recording_topic, json.dumps(message), QOS)  # publish the message on the recording topic
+			print(f"Timeout reached, resending record #{count}")
 	
 	# take the predictions and compute the mean of the logits (the sum in enough because the argmax returns the same result)
 	predictions = np.asarray(predictions)
