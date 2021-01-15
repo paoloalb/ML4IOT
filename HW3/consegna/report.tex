@@ -47,15 +47,14 @@ Student ID: s278176\\
 
 \section{Big/Little Inference}
 %spiegare che abbiamo scelto rest perchè è la cosa + logica con client-server
-
-%uso della politica first-second (abbiamo provato entropoia ma era peggio)
-%secondo - primo  > soglia
-% citare policy entropia che non andava bene 
-
-%little: stft per rispettare inference constraint. inserido dropout, cambiato policy
-
-%big: MFCC to maximize acc. cambiato policy. aggiunto layer più grossi
-
+For the big/little inference, we chose to use perform it with the use of REST, since it was the best choice when working with a single client and a server.
+When training the big model we used MFCC to maximize the accuracy, while we switched to STFT in the little one, in order to reduce significantly the inference time.
+\\
+For both networks, we decided to use a DS-CNN model, increasing the number of convolutional filters in the big model. For the small model, we also used magnitude based pruning, in order to respect thesize constraints while mantaining a good accuracy.\\
+We also implemented learning rate policies for both the networks during training.\\\\
+We tried different success checker policies, like a treshold on the entropy of the probabilities array. We finally settled on the first-second policy, where we used the difference between first and second biggest probabilities coming from the network prediction layer.
+\\\\
+Whenn it comes to communication cost, we managed to reduce it a lot by switching from Float32 to Int16 when sending the data to the server. This did not impact the resulting accuracy, while reducing the 
 %TABELLA CON RISULTATI PER I 2 MODELLI e hyperparameters
 
 %Int16 invece di float32 perché codifichi meno byte. non inficia l'accuracy e ci ha permesso di ridurre il  costo nei limiti richiesti (quasi dimezzato costo)

@@ -283,7 +283,7 @@ def littletraining():
     callbacks.append(tf.keras.callbacks.LearningRateScheduler(schedule=small_scheduler))
 
     prune_low_magnitude = tfmot.sparsity.keras.prune_low_magnitude
-    model = prune_low_magnitude(model, **pruning_params)
+    model = prune_low_magnitude(model, **	_params)
 
     model.build([32, 32, 32])
 
