@@ -9,6 +9,8 @@ import base64
 import tensorflow.lite as tflite
 import tensorflow as tf
 from SignalGenerator import SignalGenerator
+from datetime import datetime
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "" 					# ignore GPU devices
 
 SAMPLING_RATE = 16000
@@ -66,7 +68,10 @@ class BigService(object):
 		
 		print(sample_label)	
 		
-		out = {"bn": "big_service", "e": sample_label}
+		dateTimeObj = datetime.now()
+		timestamp = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
+		
+		out = {"bn": "big_service", "bt": timestamp, "e": sample_label}
 		
 		return json.dumps(out)
 

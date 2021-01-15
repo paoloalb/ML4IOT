@@ -58,8 +58,9 @@ class myHandler(MQTT_Handler):
 			encoded_logits = base64.b64encode(y_pred).decode()				# encode the logits (numpy array -> base64 string)
 			
 			# send the message with SenML
-			logits = {"n": "logits", "t":int(time.time()), "vd": encoded_logits}
-			message = {"bn": f"client_{args.model.split('/')[-1]}", "record_id":data["record_id"], "e": [logits]}
+			logits = {"n": "logits", "bt":int(time.time()), "vd": encoded_logits}
+			message = {"bn": f"client_{args.model.split('/')[-1]}", "t": 0,
+			 "record_id":data["record_id"], "e": [logits]}
 			
 			# record id is an additional field used for logging and debugging
 			
@@ -77,6 +78,6 @@ handler.myMqttClient.mySubscribe(recording_topic, QOS)		# subscribe to recording
 ##################################################################################################
 
 while True:
-	time.sleep(0.001)
+	time.sleep(0.01)
 
 

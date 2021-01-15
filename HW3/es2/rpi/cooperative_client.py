@@ -100,8 +100,8 @@ for x, y_true in test_ds.unbatch().batch(1):
 	encoded_audio = base64.b64encode(x).decode()			# encode sample
 	
 	# create the message in SenML
-	audio = {"n": "audio", "t":int(time.time()), "vd": encoded_audio}
-	message = {"bn": "cooperative_client", "record_id":count, "e": [audio]}
+	audio = {"n": "audio", "bt":int(time.time()), "vd": encoded_audio}
+	message = {"bn": "cooperative_client", "t": 0, "record_id":count, "e": [audio]}
 	
 	handler.myMqttClient.myPublish(recording_topic, json.dumps(message), QOS)		# publish the message on the recording topic
 	
