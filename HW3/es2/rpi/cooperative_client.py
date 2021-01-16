@@ -32,10 +32,10 @@ class myHandler(MQTT_Handler):
 	def notify(self, topic, msg):
 		if topic == preds_topic:
 			data = json.loads(msg)
-			print(f"Received inference from {data['bn']}, recording id: {data['record_id']}")	# logging
+			print(f"Received inference from {data['device_id']}, recording id: {data['record_id']}")	# logging
 			
 			# decode the message (base64 string -> numpy array)
-			logits = np.frombuffer(base64.b64decode(data["e"][0]["vd"]), dtype=np.float32)
+			logits = np.frombuffer(base64.b64decode(data["logits"]), dtype=np.float32)
 			
 			predictions.append(list(logits))
 #############################################################################################################################
@@ -111,7 +111,7 @@ for x, y_true in test_ds.unbatch().batch(1):
 		time.sleep(0.01)
 		timeout_count += 1
 		
-		if timeout_count == (2//0.01):     # two second timeout
+		if timeout_count == (4//0.01):     # four second timeout
 			timeout_count = 0
 			predictions = []
 			handler.myMqttClient.myPublish(recording_topic, json.dumps(message), QOS)  # publish the message on the recording topic

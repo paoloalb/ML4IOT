@@ -63,7 +63,7 @@ def BigRequest(url, file_path, generator):
 			raise SystemExit(err)
 
 		body = r.json()
-		sample_label = body["e"]["label"]
+		sample_label = body["label"]
 		return int(sample_label), len(json.dumps(out))
 
 

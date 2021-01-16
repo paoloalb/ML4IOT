@@ -58,16 +58,13 @@ class myHandler(MQTT_Handler):
 			encoded_logits = base64.b64encode(y_pred).decode()				# encode the logits (numpy array -> base64 string)
 			
 			# send the message with SenML
-			logits = {"n": "logits", "u":"/", "t":0, "vd": encoded_logits}
-			message = {"bn": f"client_{args.model.split('/')[-1]}", "bt": int(time.time()),
-			 "record_id":data["record_id"], "e": [logits]}
-			
-			# record id is an additional field used for logging and debugging
+			logits = {"logits": encoded_logits, "device_id": f"client_{args.model.split('/')[-1]}", "record_id":data["record_id"]}
+			# record id and device_id are additional fields used for logging and debugging
 			
 			# logging
 			print(f"client_{args.model.split('/')[-1]}: Responding to {data['bn']} with the inference of record {data['record_id']}")
 			
-			handler.myMqttClient.myPublish(preds_topic, json.dumps(message), QOS)	# publish message on predictions topic
+			handler.myMqttClient.myPublish(preds_topic, json.dumps(logits), QOS)	# publish message on predictions topic
 ##################################################################################################
 
 

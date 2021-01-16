@@ -71,9 +71,9 @@ class BigService(object):
 		dateTimeObj = datetime.now()
 		timestamp = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
 		
-		out = {"bn": "big_service", "bt": timestamp, "e": sample_label}
+		#out = {"bn": "big_service", "bt": timestamp, "e": sample_label}
 		
-		return json.dumps(out)
+		return json.dumps(sample_label)
 
 
 if __name__ =='__main__': 
