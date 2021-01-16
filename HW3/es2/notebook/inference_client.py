@@ -58,8 +58,8 @@ class myHandler(MQTT_Handler):
 			encoded_logits = base64.b64encode(y_pred).decode()				# encode the logits (numpy array -> base64 string)
 			
 			# send the message with SenML
-			logits = {"n": "logits", "bt":int(time.time()), "vd": encoded_logits}
-			message = {"bn": f"client_{args.model.split('/')[-1]}", "t": 0,
+			logits = {"n": "logits", "u":"/", "t":0, "vd": encoded_logits}
+			message = {"bn": f"client_{args.model.split('/')[-1]}", "bt": int(time.time()),
 			 "record_id":data["record_id"], "e": [logits]}
 			
 			# record id is an additional field used for logging and debugging

@@ -51,7 +51,7 @@ def BigRequest(url, file_path, generator):
 	encoded_audio = base64.b64encode(wav).decode()
 	#encoded_audio = base64.b85encode(wav).decode()
 
-	json_audio = {"n": "audio", "u": "/", "t": 0, "v": encoded_audio}
+	json_audio = {"n": "audio", "u": "/", "t": 0, "vd": encoded_audio}
 	out = {"bn": "little_service", "bt": timestamp, "e": json_audio}
     
 	if (COMM_COST+len(json.dumps(out)))>MAX_COMM_COST:
