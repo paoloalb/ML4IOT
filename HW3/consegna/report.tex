@@ -76,13 +76,14 @@ Little& 20 & & & NO  & & 90.62\%\\
 
 \section{Cooperative Inference}
 For the cooperative inference, the chosen number of models is 4.\\
-The communication is performed through MQTT, considering that it is relatively easy to publish the recording once for all the, possibly many, models with respect to create a web service for each of them.\\
+The communication is performed through MQTT, considering that it is relatively easy to publish the recording once for all the, possibly many, models with respect to create a web service for each of them.
+Two topics are used, one for the recordings (\verb#276545/recording#) and one for the inferences (\verb#276545/predictions#).\\
 We managed to keep the number of models as low as possible while preserving accuracy.
 As expected all the models have an individual accuracy that is lower than the cooperative final accuracy that is 95.13\% .\\
 Two of them are derived from the proposed DS-CNN, while the remaining two are derived from the proposed CNN, with some modification on the BatchNorm layer and filters and biases of the Conv2D.\\
-To tackle the big amount of time needed to complete the 800 inferences, during testing the quality of service has been lowered to 0,
-avoiding the four-step handshake that was time consuming. To ensure the correct communication in the final commit of the homework the
-QOS is again 2 (but using the optional parameter \verb#qos# on both \verb#inference_client.py# and \verb#cooperative_client# is possible to change it)\\
+The implementation relies on queues both on each device and on the cooperative client, used to store received messages.
+In that way we do not wait the answers for each recording before sending the next one and this results in shorter execution time.\\
+A timeout policy is implemented to handle missing messages that can be lost, and the QOS is set to 0.\\
 The cooperative policy consists of averaging the logits (output of the last layer of the models) and taking the argmax of them.
 
 \vspace{0.2cm}
