@@ -19,12 +19,6 @@ MAX_COMM_COST = 4.5*(2**20)
 URL = "http://0.0.0.0:8080"  # url del pc
 
 
-def float32_to_int16(array):
-	array = array*32768
-	array = np.asarray(array, dtype=np.int16)
-	return array
-
-
 def SuccessChecker_BinEntropy(inf_array, threshold):
     print("Entropy: " + str(entropy(inf_array, base=2)))
     if entropy(inf_array, base=2) <= threshold:
@@ -44,11 +38,10 @@ def BigRequest(url, file_path, generator):
 	dateTimeObj = datetime.now()
 	timestamp = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
 	
-	wav, _ = generator.read(file_path)
+	binary = tf.io.read_file(file_path)
+	int16_wav = np.frombuffer(binary.numpy(), dtype=np.int16)
     
-	wav = float32_to_int16(wav.numpy())
-    
-	encoded_audio = base64.b64encode(wav).decode()
+	encoded_audio = base64.b64encode(int16_wav).decode()
 	#encoded_audio = base64.b85encode(wav).decode()
 
 	json_audio = {"n": "audio", "u": "/", "t": 0, "vd": encoded_audio}

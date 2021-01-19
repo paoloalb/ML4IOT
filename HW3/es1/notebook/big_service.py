@@ -25,12 +25,6 @@ LABELS = f.read().split(" ")
         
 generator = SignalGenerator(LABELS, SAMPLING_RATE, **MFCC_OPTIONS)
 
-def int16_to_float32(array):
-	array = array/32768
-	array = np.asarray(array, dtype=np.float32)
-	return array
-
-
 class BigService(object): 
 	exposed= True
 	
@@ -45,7 +39,10 @@ class BigService(object):
 		audio = np.frombuffer(base64.b64decode(dict_obj["e"]["vd"]), dtype=np.int16)
 		#audio = np.frombuffer(base64.b85decode(dict_obj["e"]["v"]), dtype=np.int16)
 		
-		audio = int16_to_float32(audio)
+		audio=bytes(audio)
+		audio, _ = tf.audio.decode_wav(audio)
+		audio = tf.squeeze(audio, axis=1)
+
 		
 		audio = generator.pad(audio)
 		spectrogram = generator.get_spectrogram(audio)
