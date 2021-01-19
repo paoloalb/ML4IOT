@@ -36,7 +36,7 @@ class myHandler(MQTT_Handler):
 			# decode the message (base64 string -> numpy array)
 			logits = np.frombuffer(base64.b64decode(data["logits"]), dtype=np.float32)
 			
-			inference_queue.append((data['record_id'], list(logits)))
+			inference_queue.append((data['record_id'], data['device_id'], list(logits)))
 #############################################################################################################################
 
 
@@ -138,18 +138,27 @@ timeout_count = 0	# timeout count used to resend recording after timeout
 while current_id<len(test_files):
 	replies = []
 	predictions = []
+	devices = []
 	
 	# retrieve the inferences related to the current recording 
 	for ix, pred in enumerate(inference_queue):
 		if pred[0]==current_id:
 			replies.append(ix)
+			devices.append(pred[1])
 	
-
-	if len(replies) == N:	# all the devices have aswered with their inference
+	
+	if len(set(devices)) == N:	# all the devices have aswered with their inference
 		timeout_count = 0
 		for reply in replies[::-1]:
-			predictions.append(inference_queue.pop(reply)[1])
-				
+			predictions.append(inference_queue.pop(reply))
+		
+					# take only one instance of every device's prediction	
+		unique_preds = {}
+		for pred in predictions:
+			unique_preds[pred[1]]=pred[2]
+					
+		predictions = list(unique_preds.values())
+
 		predictions = np.asarray(predictions)
 		predictions = predictions.sum(axis=0)
 		pred = np.argmax(predictions)			# take the final cooperative prediction
@@ -165,12 +174,9 @@ while current_id<len(test_files):
 		timeout_count += 1
 		
 		# if the timeout is reached, remove the related inferences (if any) from the queue and resend
-		if timeout_count >= 2//0.001:
+		if timeout_count >= 0.5//0.01:
 			timeout_count = 0
 			print(f"TIMEOUT reached, resending record #{current_id}, only {len(replies)} inferences")
-			# remove partial inference messages
-			for reply in replies[::-1]:
-				inference_queue.pop(reply)
 				
 			# resend the message
 			encoded_audio = base64.b64encode(ds[current_id]).decode()			# encode sample
@@ -181,7 +187,7 @@ while current_id<len(test_files):
 			
 			handler.myMqttClient.myPublish(recording_topic, json.dumps(message), QOS)		# publish the message on the recording topic
 	
-	time.sleep(0.001)
+	time.sleep(0.01)
 #############################################################################################################################
 
 

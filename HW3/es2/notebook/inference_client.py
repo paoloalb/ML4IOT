@@ -43,7 +43,6 @@ class myHandler(MQTT_Handler):
 		data = json.loads(msg)
 		print(f"client_{args.model.split('/')[-1]}: Received recording from {data['bn']}, recording id: {data['record_id']}")
 		sample_queue.append(data)
-			
 ##################################################################################################
 
 
