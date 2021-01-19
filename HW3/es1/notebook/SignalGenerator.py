@@ -66,7 +66,7 @@ class SignalGenerator:
         spectrogram = tf.expand_dims(spectrogram, -1)
         spectrogram = tf.image.resize(spectrogram, [32, 32])
 
-        return spectrogram, label, time.time()-tic
+        return spectrogram, label
 
     def preprocess_with_mfcc(self, file_path):
         audio, label = self.read(file_path)

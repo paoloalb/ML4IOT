@@ -1,2 +1,2 @@
-model_checkpoint_path: "Group7_big"
-all_model_checkpoint_paths: "Group7_big"
+model_checkpoint_path: "Group7_little"
+all_model_checkpoint_paths: "Group7_little"
