@@ -31,7 +31,7 @@ class SignalGenerator:
         self.lower_frequency = lower_frequency
         self.upper_frequency = upper_frequency
         self.num_coefficients = num_coefficients
-        num_spectrogram_bins = (frame_length) // 2 + 1
+        num_spectrogram_bins = frame_length // 2 + 1
 
         if mfcc is True:
             self.linear_to_mel_weight_matrix = tf.signal.linear_to_mel_weight_matrix(
@@ -241,15 +241,11 @@ accuracy /= float(count)
 
 new_accuracy /= float(count)
 
-# print("Accuracy {}".format(accuracy))
-print("New accuracy {}".format(new_accuracy))
 
-print("There were : " + str(insucces_count) + "/" + str(count) + " errors")
+print("Big service was called " + str(insucces_count) + "/" + str(count) + " times")
 
-print(f"Partial small accuracy: {small_right / (count - insucces_count)}")
-print(f"Partial big accuracy: {big_right / insucces_count}")
+print(f"Partial small accuracy: {small_right / (count - insucces_count)} % ")
+print(f"Partial big accuracy: {big_right / insucces_count} %")
 
-print(f"communication cost : {COMM_COST / (2 ** 20):.5f} MB")
-
-print(f"Average total time : {total_time * 1000 / count:.4f} ms")
-print(f"Average inference time : {inference_time * 1000 / count:.4f} ms")
+print("Accuracy {} %".format(new_accuracy*100))
+print(f"Communication cost : {COMM_COST / (2 ** 20):.5f} MB")
