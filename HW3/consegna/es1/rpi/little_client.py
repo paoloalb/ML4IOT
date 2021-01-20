@@ -15,7 +15,7 @@ SAMPLING_RATE = 16000
 COMM_COST = 0
 MAX_COMM_COST = 4.5 * (2 ** 20)
 
-URL = "http://0.0.0.0:8080"  # url del pc
+URL = "http://0.0.0.0:8080"
 
 
 #### SIGNAL GENERATOR CLASS ######################################################################
@@ -112,7 +112,7 @@ def SuccessChecker_FirstSecond(inf_array, threshold):
         return False
 
 
-def BigRequest(url, file_path, generator):
+def BigRequest(url, file_path):
     dateTimeObj = datetime.now()
     timestamp = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
 
@@ -120,7 +120,6 @@ def BigRequest(url, file_path, generator):
     int16_wav = np.frombuffer(binary.numpy(), dtype=np.int16)
 
     encoded_audio = base64.b64encode(int16_wav).decode()
-    # encoded_audio = base64.b85encode(wav).decode()
 
     json_audio = {"n": "audio", "u": "/", "t": 0, "vd": encoded_audio}
     out = {"bn": "little_service", "bt": timestamp, "e": json_audio}
@@ -210,7 +209,7 @@ for n, path in enumerate(test_files):
     if not SuccessChecker_FirstSecond(inference, 0.66):
         print("NO SUCCESS")
         insucces_count += 1
-        label, cost = BigRequest(URL, test_files[n], generator)
+        label, cost = BigRequest(URL, test_files[n])
 
         # if the function returns None, 0 it means that we are exceeding the communication limit
         # so the big client inference is skipped and the label is taken from the little model instead
