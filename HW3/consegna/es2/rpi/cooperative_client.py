@@ -169,7 +169,7 @@ while current_id<len(test_files):
 				
 		current_id += 1 	# go to the next recording to evaluate
 
-		print(f"{current_id-1}/{len(test_files)} Current accuracy: {correct/current_id:.4f}")		# logging
+		print(f"{current_id-1}/{len(test_files)} Current accuracy: {correct*100/current_id:.4f} %")		# logging
 	else:
 		timeout_count += 1
 		
@@ -191,7 +191,7 @@ while current_id<len(test_files):
 #############################################################################################################################
 
 
-print(f"Accuracy: {correct/current_id:.4f}")
+print(f"Accuracy: {correct*100/current_id:.4f} % ")
 
 publisher.join()	# wait until the pulisher ends (this happens for sure before)
 handler.end()		# terminate MQTT client
