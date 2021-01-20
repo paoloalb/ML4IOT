@@ -3,7 +3,7 @@
 \usepackage[english]{babel}
 \usepackage[document]{ragged2e}
 \usepackage{todonotes}
-\usepackage[a4paper, total={7in, 12in}]{geometry}
+\usepackage[a4paper, total={7in, 12.1in}]{geometry}
 \usepackage{subcaption}
 \usepackage{graphicx}
 \usepackage{grffile}
@@ -37,23 +37,23 @@ Student ID: s278176\\
     Politecnico di Torino\\
     \vspace{.5cm}
     \Large \textbf{Homework 3 report}
-    \vspace{.1cm}
+    \vspace{0cm}
 }
 
 \maketitle
 \thispagestyle{empty} 
-\vspace{-0.9cm}
+\vspace{-1cm}
 
 
 \section{Big/Little Inference}
-For the big/little inference, we chose to use perform it with the use of REST, since it was the best choice when working with a single client and a server.
+For the big/little inference, we decided to perform it with REST, since it was the best choice when working with a single client and a server.
 When training the big model we used MFCC to maximize the accuracy, while we switched to STFT in the little one, in order to reduce significantly the inference time.
 \\
-For both networks, we decided to use a DS-CNN model, increasing the number of convolutional filters in the big model. For the small model, we also used magnitude based pruning, in order to respect thesize constraints while mantaining a good accuracy.\\
+For both networks, we decided to use a DS-CNN model, increasing the number of convolutional filters in the big model. For the small model, we also used magnitude based pruning, in order to respect the size constraints while mantaining a good accuracy.\\
 We also implemented learning rate policies for both the networks during training.\\\\
-We tried different success checker policies, like a treshold on the entropy of the probabilities array. We finally settled on the \textbf{score margin} policy, where we used a threshold of 0.66 on the difference between first and second biggest scores (probabilities) coming from the last network layer.
+We tried different success checker policies, like a treshold on the entropy of the probabilities array. We finally settled on the \textbf{score margin} policy, where we used a threshold of 0.58 on the difference between first and second biggest scores (probabilities) coming from the last network layer.
 \\\\
-When it comes to the communication cost, we managed to call the server for a prediction 113 times with a total cost of about 4.49 MB and a final accuracy of 93.75 \%.
+When it comes to the communication cost, we managed to call the server for a prediction 113 times with a total cost of about 4.47 MB and a final accuracy of 93.125 \%.
 It is worth saying that we forced the little model to use it's own predictions when we were close to the limit (4.5 MB), even if the confidence was below the threshold. 
 
 \vspace{0.2cm}
@@ -67,7 +67,7 @@ It is worth saying that we forced the little model to use it's own predictions w
  & &\textbf{size} & &\textbf{accuracy}&\\
 \hline
 Big   & 2,2  MB & 2,1 MB  & 35 & YES & 95.125\%\\
-Little& 28,5 kB & 19,2 kB & 35 & NO  & 91.000\%\\
+Little& 28,5 kB & 19,2 kB & 35 & NO  & 90.620\%\\
 \hline
 
 \end{tabular}
