@@ -51,9 +51,11 @@ When training the big model we used MFCC to maximize the accuracy, while we swit
 \\
 For both networks, we decided to use a DS-CNN model, increasing the number of convolutional filters in the big model. For the small model, we also used magnitude based pruning, in order to respect thesize constraints while mantaining a good accuracy.\\
 We also implemented learning rate policies for both the networks during training.\\\\
-We tried different success checker policies, like a treshold on the entropy of the probabilities array. We finally settled on the first-second policy, where we used the difference between first and second biggest probabilities coming from the network prediction layer.
+We tried different success checker policies, like a treshold on the entropy of the probabilities array. We finally settled on the \textbf{score margin} policy, where we used a threshold of 0.58 on the difference between first and second biggest scores (probabilities) coming from the last network layer.
 \\\\
-When it comes to the communication cost, we managed to reduce it a lot by switching from Float32 to Int16 when sending the data to the server. This did not impact the resulting accuracy, while reducing the cost of communication by a significant margin and allowing us to call the server for a prediction 113 times, resulting in a comunnication cost of about 4.47 MB and a final accuracy of 93.12 \%.
+When it comes to the communication cost, we managed to call the server for a prediction 113 times with a total cost of about 4.47 MB and a final accuracy of 93.125 \%.
+It is worth saying that we forced the little model to use it's own predictions when we were close to the limit (4.5 MB), even if the confidence was below the threshold. 
+
 \vspace{0.2cm}
 
 \begin{center}
@@ -64,8 +66,8 @@ When it comes to the communication cost, we managed to reduce it a lot by switch
 \textbf{Model} &\textbf{Size} &\textbf{Compressed} &\textbf{Epochs}&\textbf{MFCC} &\textbf{Test set}\\
  & &\textbf{size} & &\textbf{accuracy}&\\
 \hline
-Big   & 2,2  MB & 2,1 MB  & 35 & YES & 95.12\%\\
-Little& 28,5 kB & 19,2 kB & 35 & NO  & 90.62\%\\
+Big   & 2,2  MB & 2,1 MB  & 35 & YES & 95.125\%\\
+Little& 28,5 kB & 19,2 kB & 35 & NO  & 90.620\%\\
 \hline
 
 \end{tabular}
@@ -93,17 +95,17 @@ The cooperative policy consists of averaging the logits (output of the last laye
 \hline
 \vspace{-0.09cm}
 
-\textbf{Vers.} &\textbf{Model} &\textbf{Modification w.r.t.} &\textbf{Epochs}&\textbf{lr} &\textbf{Test set accuracy}\\
-\textbf{} &\textbf{proposed models} &\textbf{}&\textbf{} &\textbf{}\\
+\textbf{Ver.} &\textbf{Model} &\textbf{Modification w.r.t.} &\textbf{Epochs}&\textbf{lr} &\textbf{Test set accuracy}\\
+\textbf{} &\textbf{} &\textbf{proposed models} &\textbf{}&\textbf{} &\textbf{}\\
 \hline
-1 & CNN-0 &-& 20 & 0.01 & 94.25\\
+1 & CNN-0 &-& 20 & 0.01 & 94.250\\
 \hline
 2 & CNN-1&Conv2D(filters=64, bias=True),&20&0.01&93.125\\
 &&BatchNormalization(momentum=0.2)&&&\\
 \hline
 3 & DS-CNN-0&-&20&0.01&93.625\\
 \hline
-4 & DS-CNN-1&Conv2D(filters=128, bias=True),&20&0.01&92.50\\
+4 & DS-CNN-1&Conv2D(filters=128, bias=True),&20&0.01&92.500\\
 && BatchNormalization(momentum=0.2)&&&\\
 \hline\hline
 &Cooperative inference &&&&\textbf{95.13} \\
