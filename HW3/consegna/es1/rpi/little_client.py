@@ -243,8 +243,8 @@ new_accuracy /= float(count)
 
 print("Big service was called " + str(insucces_count) + "/" + str(count) + " times")
 
-print(f"Partial small accuracy: {small_right / (count - insucces_count)} % ")
-print(f"Partial big accuracy: {big_right / insucces_count} %")
+print(f"Partial small accuracy: {100*small_right / (count - insucces_count):.3f} % ")
+print(f"Partial big accuracy: {100*big_right / insucces_count:.3f} %")
 
-print("\n\nAccuracy {} %".format(new_accuracy*100))
-print(f"Communication cost : {COMM_COST / (2 ** 20):.5f} MB")
+print("\n\nAccuracy: {} %".format(new_accuracy*100))
+print(f"Communication cost: {COMM_COST / (2 ** 20):.5f} MB")
