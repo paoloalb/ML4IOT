@@ -93,20 +93,20 @@ The cooperative policy consists of averaging the logits (output of the last laye
 \hline
 \vspace{-0.09cm}
 
-\textbf{Model} &\textbf{Modification w.r.t.} &\textbf{Epochs}&\textbf{lr} &\textbf{Test set accuracy}\\
+\textbf{Vers.} &\textbf{Model} &\textbf{Modification w.r.t.} &\textbf{Epochs}&\textbf{lr} &\textbf{Test set accuracy}\\
 \textbf{} &\textbf{proposed models} &\textbf{}&\textbf{} &\textbf{}\\
 \hline
-CNN-0 &-& 20 & 0.01 & 94.25\\
+1 & CNN-0 &-& 20 & 0.01 & 94.25\\
 \hline
-CNN-1&Conv2D(filters=64, bias=True),&20&0.01&93.125\\
-&BatchNormalization(momentum=0.2)&&&\\
+2 & CNN-1&Conv2D(filters=64, bias=True),&20&0.01&93.125\\
+&&BatchNormalization(momentum=0.2)&&&\\
 \hline
-DS-CNN-0&-&20&0.01&93.625\\
+3 & DS-CNN-0&-&20&0.01&93.625\\
 \hline
-DS-CNN-1&Conv2D(filters=128, bias=True),&20&0.01&92.50\\
-& BatchNormalization(momentum=0.2)&&&\\
+4 & DS-CNN-1&Conv2D(filters=128, bias=True),&20&0.01&92.50\\
+&& BatchNormalization(momentum=0.2)&&&\\
 \hline\hline
-Cooperative inference &&&&\textbf{95.13} \\
+&Cooperative inference &&&&\textbf{95.13} \\
 \hline
 \end{tabular}
 \captionof{table}{Models used for the cooperative inference} 
