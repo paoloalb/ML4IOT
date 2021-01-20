@@ -246,5 +246,5 @@ print("Big service was called " + str(insucces_count) + "/" + str(count) + " tim
 print(f"Partial small accuracy: {small_right / (count - insucces_count)} % ")
 print(f"Partial big accuracy: {big_right / insucces_count} %")
 
-print("Accuracy {} %".format(new_accuracy*100))
+print("\n\nAccuracy {} %".format(new_accuracy*100))
 print(f"Communication cost : {COMM_COST / (2 ** 20):.5f} MB")
