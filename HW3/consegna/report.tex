@@ -3,7 +3,7 @@
 \usepackage[english]{babel}
 \usepackage[document]{ragged2e}
 \usepackage{todonotes}
-\usepackage[a4paper, total={7in, 12.1in}]{geometry}
+\usepackage[a4paper, total={7in, 12in}]{geometry}
 \usepackage{subcaption}
 \usepackage{graphicx}
 \usepackage{grffile}
@@ -46,7 +46,7 @@ Student ID: s278176\\
 
 
 \section{Big/Little Inference}
-For the big/little inference, we decided to perform it with REST, since it was the best choice when working with a single client and a server.
+For the Big/Little inference, we decided to perform the task using REST, since it seemed to be the best choice when working with a single client and server.
 When training the big model we used MFCC to maximize the accuracy, while we switched to STFT in the little one, in order to reduce significantly the inference time.
 \\
 For both networks, we decided to use a DS-CNN model, increasing the number of convolutional filters in the big model. For the small model, we also used magnitude based pruning, in order to respect the size constraints while mantaining a good accuracy.\\
@@ -98,17 +98,17 @@ The cooperative policy consists of averaging the logits (output of the last laye
 \textbf{Ver.} &\textbf{Model} &\textbf{Modification w.r.t.} &\textbf{Epochs}&\textbf{lr} &\textbf{Test set accuracy}\\
 \textbf{} &\textbf{} &\textbf{proposed models} &\textbf{}&\textbf{} &\textbf{}\\
 \hline
-1 & CNN-0 &-& 20 & 0.01 & 94.250\\
+1 & CNN-0 &-& 20 & 0.01 & 94.250\%\\
 \hline
-2 & CNN-1&Conv2D(filters=64, bias=True),&20&0.01&93.125\\
+2 & CNN-1&Conv2D(filters=64, bias=True),&20&0.01&93.125\%\\
 &&BatchNormalization(momentum=0.2)&&&\\
 \hline
-3 & DS-CNN-0&-&20&0.01&93.625\\
+3 & DS-CNN-0&-&20&0.01&93.625\%\\
 \hline
-4 & DS-CNN-1&Conv2D(filters=128, bias=True),&20&0.01&92.500\\
+4 & DS-CNN-1&Conv2D(filters=128, bias=True),&20&0.01&92.500\%\\
 && BatchNormalization(momentum=0.2)&&&\\
 \hline\hline
-&Cooperative inference &&&&\textbf{95.13} \\
+&Cooperative inference &&&&\textbf{95.13\%} \\
 \hline
 \end{tabular}
 \captionof{table}{Models used for the cooperative inference} 
