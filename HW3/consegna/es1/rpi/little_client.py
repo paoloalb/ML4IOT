@@ -218,7 +218,7 @@ for n, path in enumerate(test_files):
 
     entr += entropy(inference, base=2)
 
-    if not SuccessChecker_FirstSecond(inference, 0.58):
+    if not SuccessChecker_FirstSecond(inference, 0.66):
         print("NO SUCCESS")
         insucces_count += 1
         label, cost = BigRequest(URL, test_files[n], generator)

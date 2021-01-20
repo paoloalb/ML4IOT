@@ -6,7 +6,7 @@ from tensorflow import keras
 import zlib  # to compress the model
 import tensorflow.lite as tflite
 import tensorflow_model_optimization as tfmot  # for magnitude based pruning
-
+import time
 
 #### SIGNAL GENERATOR CLASS ######################################################################
 class SignalGenerator:
@@ -97,8 +97,7 @@ class SignalGenerator:
 parser = argparse.ArgumentParser()
 parser.add_argument("--version",
                     type=str,
-                    # required=True,
-                    default="big",  # togliere il default alla consegna
+                    required=True,
                     help="Version of the model (big or little)")
 
 args = parser.parse_args()
@@ -107,10 +106,6 @@ assert args.version in ["big", "little"], "Error: parameter version is not corre
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Do not print info and warning messages
 os.environ["CUDA_VISIBLE_DEVICES"] = ""  # ignore GPU devices
-
-seed = 42
-tf.random.set_seed(seed)
-np.random.seed(seed)
 
 zip_path = tf.keras.utils.get_file(
     origin="http://storage.googleapis.com/download.tensorflow.org/data/mini_speech_commands.zip",
@@ -172,6 +167,10 @@ def big_scheduler(epoch, lr):
 
 
 def bigtraining():
+    seed = 42
+    tf.random.set_seed(seed)
+    np.random.seed(seed)
+
     EPOCHS = 35
     LEARNING_RATE = 0.01
     SAMPLING_RATE = 16000
@@ -299,6 +298,10 @@ def bigtraining():
 
 
 def littletraining():
+    seed = 11
+    tf.random.set_seed(seed)
+    np.random.seed(seed)
+
     EPOCHS = 35
     LEARNING_RATE = 0.01
     STRUCTURED_W = 0.3  # alpha
