@@ -101,7 +101,8 @@ def send_recordings(ds, handler, topic, QOS):
 		#print(f"Recording #{count} published under topic {topic}")
 		
 		count += 1
-		time.sleep(0.01)
+		time.sleep(0.01)		# rate of recordings sent (0.01 means 100 recordings each second)
+	print("Ending publisher thread")
 	return
 ############################################################################################################################
 
@@ -169,7 +170,7 @@ while current_id<len(test_files):
 				
 		current_id += 1 	# go to the next recording to evaluate
 
-		print(f"{current_id-1}/{len(test_files)} Current accuracy: {correct*100/current_id:.4f} %")		# logging
+		print(f"{current_id}/{len(test_files)} Current accuracy: {correct*100/current_id:.3f} %")		# logging
 	else:
 		timeout_count += 1
 		
@@ -191,7 +192,7 @@ while current_id<len(test_files):
 #############################################################################################################################
 
 
-print(f"Accuracy: {correct*100/current_id:.4f} % ")
+print(f"\nAccuracy: {correct*100/current_id:.3f} % ")
 
 publisher.join()	# wait until the pulisher ends (this happens for sure before)
 handler.end()		# terminate MQTT client

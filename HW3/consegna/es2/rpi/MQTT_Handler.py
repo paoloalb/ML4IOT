@@ -14,7 +14,7 @@ class MQTT_Handler():
 
 	def end(self):
 		# if needed, perform some other actions befor ending the software
-		print ("ending %s" % (self.clientID))
+		#print ("ending %s" % (self.clientID))
 		self.myMqttClient.stop ()
 
 	def notify(self, topic, msg):
