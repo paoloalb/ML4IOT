@@ -322,7 +322,7 @@ test_acc = model.evaluate(test_ds, verbose=1)[-1]
 ##################################################################################################
 
 
-#### CONVERT TO TFLITE ############
+#### CONVERT TO TFLITE ###########################################################################
 converter = tf.lite.TFLiteConverter.from_keras_model(model)
 tflite_model = converter.convert()
 ##################################################################################################
@@ -334,6 +334,7 @@ if not os.path.exists("./models/"):
 
 with open("./models/"+filename+".tflite", 'wb') as fp:
 	fp.write(tflite_model)
+	
 print(f"Final model size: {os.path.getsize('./models/'+filename+'.tflite')} bytes")
 ##################################################################################################
 

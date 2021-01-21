@@ -125,11 +125,11 @@ class BigService(object):
 		audio = np.frombuffer(base64.b64decode(dict_obj["e"]["vd"]), dtype=np.int16)
 		#audio = np.frombuffer(base64.b85decode(dict_obj["e"]["v"]), dtype=np.int16)
 		
-		audio=bytes(audio)
+		# preprocessing
+		audio = bytes(audio)
 		audio, _ = tf.audio.decode_wav(audio)
 		audio = tf.squeeze(audio, axis=1)
 
-		
 		audio = generator.pad(audio)
 		spectrogram = generator.get_spectrogram(audio)
 		mfccs = generator.get_mfccs(spectrogram)
@@ -148,13 +148,7 @@ class BigService(object):
 		y_pred = y_pred.squeeze()  # remove batch dim
 
 		sample_label = {"label":str(np.argmax(np.array(y_pred)))}
-		
 		print(sample_label)	
-		
-		dateTimeObj = datetime.now()
-		timestamp = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
-		
-		#out = {"bn": "big_service", "bt": timestamp, "e": sample_label}
 		
 		return json.dumps(sample_label)
 

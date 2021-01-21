@@ -64,10 +64,10 @@ while True:
 			
 		y_pred = interpreter.get_tensor(output_details[0]['index'])		# get the output of the last layer of the model 
 		y_pred = y_pred.squeeze() 										#remove batch dim
-		# also the logist are sent with SenML and are encoded in base64
+		# also the logits are encoded in base64
 		encoded_logits = base64.b64encode(y_pred).decode()				# encode the logits (numpy array -> base64 string)
 			
-		# send the message with SenML
+		# send the message
 		logits = {"logits": encoded_logits, "device_id": f"client_{args.model.split('/')[-1]}", "record_id":data["record_id"]}
 		# record id and device_id are additional fields used for logging and debugging
 			

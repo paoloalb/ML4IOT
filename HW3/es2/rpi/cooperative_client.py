@@ -80,6 +80,8 @@ MFCC_OPTIONS = {'frame_length': 640, 'frame_step': 320, 'mfcc': True,
         'num_coefficients': 10}
 
 # read and preprocess test data
+
+print("Making dataset")
 generator = SignalGenerator(LABELS, sampling_rate=16000, **MFCC_OPTIONS)
 test_ds = generator.make_dataset(test_files, False)
 ############################################################################################################################
@@ -101,7 +103,8 @@ def send_recordings(ds, handler, topic, QOS):
 		#print(f"Recording #{count} published under topic {topic}")
 		
 		count += 1
-		time.sleep(0.01)
+		time.sleep(0.01)		# rate of recordings sent (0.01 means 100 recordings each second)
+	print("Ending publisher thread")
 	return
 ############################################################################################################################
 
@@ -134,7 +137,7 @@ timeout_count = 0	# timeout count used to resend recording after timeout
 
 # take the predictions and compute the mean of the logits (the sum in enough because the argmax returns the same result)
 
-# while we have evaluated all the samples
+# while we don't have evaluated all the samples
 while current_id<len(test_files):
 	replies = []
 	predictions = []
@@ -147,12 +150,12 @@ while current_id<len(test_files):
 			devices.append(pred[1])
 	
 	
-	if len(set(devices)) == N:	# all the devices have aswered with their inference
+	if len(set(devices)) == N:	# if all the devices have aswered with their inference
 		timeout_count = 0
 		for reply in replies[::-1]:
 			predictions.append(inference_queue.pop(reply))
 		
-					# take only one instance of every device's prediction	
+		# take only one instance of every device's prediction	
 		unique_preds = {}
 		for pred in predictions:
 			unique_preds[pred[1]]=pred[2]
@@ -169,7 +172,7 @@ while current_id<len(test_files):
 				
 		current_id += 1 	# go to the next recording to evaluate
 
-		print(f"{current_id-1}/{len(test_files)} Current accuracy: {correct/current_id:.4f}")		# logging
+		print(f"{current_id}/{len(test_files)} Current accuracy: {correct*100/current_id:.3f} %")		# logging
 	else:
 		timeout_count += 1
 		
@@ -191,7 +194,7 @@ while current_id<len(test_files):
 #############################################################################################################################
 
 
-print(f"Accuracy: {correct/current_id:.4f}")
+print(f"\nAccuracy: {correct*100/current_id:.3f} % ")
 
 publisher.join()	# wait until the pulisher ends (this happens for sure before)
 handler.end()		# terminate MQTT client

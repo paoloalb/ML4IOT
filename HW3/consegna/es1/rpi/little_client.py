@@ -124,6 +124,7 @@ def BigRequest(url, file_path):
     json_audio = {"n": "audio", "u": "/", "t": 0, "vd": encoded_audio}
     out = {"bn": "little_service", "bt": timestamp, "e": json_audio}
 
+	# if the comm. limit is reached, use little inference only
     if (COMM_COST + len(json.dumps(out))) > MAX_COMM_COST:
         return None, 0
     else:
@@ -211,7 +212,7 @@ for n, path in enumerate(test_files):
         insucces_count += 1
         label, cost = BigRequest(URL, test_files[n])
 
-        # if the function returns None, 0 it means that we are exceeding the communication limit
+        # if the function returns (None, 0) it means that we are exceeding the communication limit
         # so the big client inference is skipped and the label is taken from the little model instead
         if label == None and cost == 0:
             new_accuracy += y_predicted_value == y_true  # 1 if True, 0 otherwise
