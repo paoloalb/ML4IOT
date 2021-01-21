@@ -112,11 +112,14 @@ LABELS = f.read().split(" ")
 generator = SignalGenerator(LABELS, SAMPLING_RATE, **MFCC_OPTIONS)
 
 class BigService(object): 
-	exposed= True
+	exposed = True
 	
-	f = open("labels.txt", "r")
-	LABELS = f.read().split(" ")
-	f.close()
+	def __init__(self):
+		self.interpreter = tflite.Interpreter('Group7_big.tflite')
+
+		self.interpreter.allocate_tensors()
+		self.input_details = self.interpreter.get_input_details()
+		self.output_details = self.interpreter.get_output_details()
 
 	def POST(self, *path, **query): 
 		
@@ -134,16 +137,10 @@ class BigService(object):
 		spectrogram = generator.get_spectrogram(audio)
 		mfccs = generator.get_mfccs(spectrogram)
 		data = tf.expand_dims(mfccs, -1)
-
-		interpreter = tflite.Interpreter('Group7_big.tflite')
-
-		interpreter.allocate_tensors()
-		input_details = interpreter.get_input_details()
-		output_details = interpreter.get_output_details()
-
-		interpreter.set_tensor(input_details[0]['index'], [data])
-		interpreter.invoke()
-		y_pred = interpreter.get_tensor(output_details[0]['index'])
+		data = tf.expand_dims(data, 0)
+		self.interpreter.set_tensor(self.input_details[0]['index'], data)
+		self.interpreter.invoke()
+		y_pred = self.interpreter.get_tensor(self.output_details[0]['index'])
 
 		y_pred = y_pred.squeeze()  # remove batch dim
 

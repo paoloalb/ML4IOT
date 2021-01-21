@@ -6,6 +6,7 @@ from datetime import datetime
 import tensorflow as tf
 import os
 import tensorflow.lite as tflite
+from tensorflow.nn import softmax
 
 os.environ["CUDA_VISIBLE_DEVICES"] = ""  # ignore GPU devices
 import time
@@ -149,13 +150,14 @@ zip_path = tf.keras.utils.get_file(
 data_dir = os.path.join(".", "data", "mini_speech_commands")
 ##################################################################################################
 
-
+print("Reading test set filenames")
 # Reads test set
 test_files = []
 with open("kws_test_split.txt", "r") as test_file:
     for filename in test_file:
         test_files.append(filename[:-1])
 
+print("Reading labels")
 f = open("labels.txt", "r")
 LABELS = f.read().split(" ")
 f.close()
@@ -164,8 +166,10 @@ STFT_OPTIONS = {'frame_length': 256, 'frame_step': 128, 'mfcc': False}
 
 options = STFT_OPTIONS
 
+print("Loading generator")
 generator = SignalGenerator(LABELS, SAMPLING_RATE, **options)
 
+print("Loading model")
 interpreter = tflite.Interpreter('Group7_little.tflite')
 
 interpreter.allocate_tensors()
@@ -183,11 +187,12 @@ big_right, small_right = 0, 0
 total_time, inference_time = 0, 0
 
 for n, path in enumerate(test_files):
-
+    
     x, y_true, pr_time = generator.preprocess_with_stft(path)
-
-    interpreter.set_tensor(input_details[0]['index'], [x])
-
+    
+    x = tf.expand_dims(x, 0)
+    interpreter.set_tensor(input_details[0]['index'], x)
+	
     start_inf = time.time()
     interpreter.invoke()
     y_pred = interpreter.get_tensor(output_details[0]['index'])
@@ -197,7 +202,7 @@ for n, path in enumerate(test_files):
     total_time += end - start_inf + pr_time
 
     y_pred = y_pred.squeeze()  # remove batch dim
-    y_pred = tf.nn.softmax(y_pred)
+    y_pred = softmax(y_pred)
 
     y_predicted_value = np.argmax(y_pred)
     y_true = y_true.numpy().squeeze()
