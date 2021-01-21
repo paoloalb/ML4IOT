@@ -47,13 +47,13 @@ Student ID: s278176\\
 
 \section{Big/Little Inference}
 For the Big/Little inference, we decided to perform the task using REST, since it seemed to be the best choice when working with a single client and server.
-When training the big model we used MFCC to maximize the accuracy, while we switched to STFT in the little one, in order to reduce significantly the inference time.
+When training the big model we used MFCC to maximize the accuracy, while we switched to STFT in the little one, in order to reduce significantly the inference time (around 18.6 ms).
 \\
 For both networks, we decided to use a DS-CNN model, increasing the number of convolutional filters in the big model. For the small model, we also used magnitude based pruning, in order to respect the size constraints while mantaining a good accuracy.\\
 We also implemented learning rate policies for both the networks during training.\\\\
-We tried different success checker policies, like a treshold on the entropy of the probabilities array. We finally settled on the \textbf{score margin} policy, where we used a threshold of 0.58 on the difference between first and second biggest scores (probabilities) coming from the last network layer.
+We tried different success checker policies, like a treshold on the entropy of the probabilities array. We finally settled on the \textbf{score margin} policy, where we used a threshold of 0.66 on the difference between first and second biggest scores (probabilities) coming from the last network layer.
 \\\\
-When it comes to the communication cost, we managed to call the server for a prediction 113 times with a total cost of about 4.47 MB and a final accuracy of 93.125 \%.
+When it comes to the communication cost, we managed to call the server for a prediction 113 times with a total cost of about \textbf{4.49 MB} and a final accuracy of \textbf{93.75\%}.
 It is worth saying that we forced the little model to use it's own predictions when we were close to the limit (4.5 MB), even if the confidence was below the threshold. 
 
 \vspace{0.2cm}
@@ -64,10 +64,10 @@ It is worth saying that we forced the little model to use it's own predictions w
 \vspace{-0.09cm}
 
 \textbf{Model} &\textbf{Size} &\textbf{Compressed} &\textbf{Epochs}&\textbf{MFCC} &\textbf{Test set}\\
- & &\textbf{size} & &\textbf{accuracy}&\\
+ & &\textbf{size} & & &\textbf{accuracy}\\
 \hline
 Big   & 2,2  MB & 2,1 MB  & 35 & YES & 95.125\%\\
-Little& 28,5 kB & 19,2 kB & 35 & NO  & 90.620\%\\
+Little& 28,5 KB & 19,2 KB & 35 & NO  & 91.000\%\\
 \hline
 
 \end{tabular}
@@ -77,16 +77,16 @@ Little& 28,5 kB & 19,2 kB & 35 & NO  & 90.620\%\\
 
 
 \section{Cooperative Inference}
-For the cooperative inference, the chosen number of models is 4.\\
+For the cooperative inference, the chosen number of models is \textbf{4}.\\
 The communication is performed through MQTT, considering that it is relatively easy to publish the recording once for all the, possibly many, models with respect to create a web service for each of them.
 Two topics are used, one for the recordings (\verb#276545/recording#) and one for the inferences (\verb#276545/predictions#).\\
 We managed to keep the number of models as low as possible while preserving accuracy.
-As expected all the models have an individual accuracy that is lower than the cooperative final accuracy that is 95.13\% .\\
-Two of them are derived from the proposed DS-CNN, while the remaining two are derived from the proposed CNN, with some modification on the BatchNorm layer and filters and biases of the Conv2D.\\
-The implementation relies on queues both on each device and on the cooperative client, used to store received messages.
+As expected all the models have an individual accuracy that is lower than the cooperative final accuracy that is \textbf{95.13\%}.\\
+Two of them are derived from the proposed DS-CNN, while the remaining two are derived from the proposed CNN, with some modification on the \verb#BatchNorm# layer and filters and biases of the \verb#Conv2D#.\\
+The implementation relies on queues, both on each device and on the cooperative client, used to store received messages.
 In that way we do not wait the answers for each recording before sending the next one and this results in shorter execution time.\\
 A timeout policy is implemented to handle missing messages that can be lost, and the QOS is set to 0.\\
-The cooperative policy consists of averaging the logits (output of the last layer of the models) and taking the argmax of them.
+The cooperative policy consists of averaging the logits (output of the last layer of the models) and taking the \verb#argmax# of them.
 
 \vspace{0.2cm}
 
@@ -100,13 +100,13 @@ The cooperative policy consists of averaging the logits (output of the last laye
 \hline
 1 & CNN-0 &-& 20 & 0.01 & 94.250\%\\
 \hline
-2 & CNN-1&Conv2D(filters=64, bias=True),&20&0.01&93.125\%\\
-&&BatchNormalization(momentum=0.2)&&&\\
+2 & CNN-1&\verb#Conv2D(filters=64, bias=True)#,&20&0.01&93.125\%\\
+&&\verb#BatchNormalization(momentum=0.2)#&&&\\
 \hline
 3 & DS-CNN-0&-&20&0.01&93.625\%\\
 \hline
-4 & DS-CNN-1&Conv2D(filters=128, bias=True),&20&0.01&92.500\%\\
-&& BatchNormalization(momentum=0.2)&&&\\
+4 & DS-CNN-1&\verb#Conv2D(filters=128, bias=True)#,&20&0.01&92.500\%\\
+&& \verb#BatchNormalization(momentum=0.2)#&&&\\
 \hline\hline
 &Cooperative inference &&&&\textbf{95.13\%} \\
 \hline
